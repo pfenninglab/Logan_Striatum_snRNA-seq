@@ -1,0 +1,10 @@
+Aligning samples w/ STARsolo for: .
+	/home/bnphan/src/STAR-2.7.9a/bin/Linux_x86_64/STAR --outFileNamePrefix HU1670.DLPFC. --soloType Droplet --readFilesIn /projects/pfenninggroup/singleCell/Logan_BU_Addiction_snRNA-seq/data/raw_data/BU_Human_Pilot_Files/fastq/HU1670/HU1670_CKDL210021411-1a-SI_TT_G1_HMHFKDSX2_S12_L002_R2_001.fastq.gz /projects/pfenninggroup/singleCell/Logan_BU_Addiction_snRNA-seq/data/raw_data/BU_Human_Pilot_Files/fastq/HU1670/HU1670_CKDL210021411-1a-SI_TT_G1_HMHFKDSX2_S12_L002_R1_001.fastq.gz --readFilesCommand zcat --genomeDir /home/bnphan/src/cellranger-6.0.0/genome/refdata-gex-GRCh38-2020-A/star --limitOutSJcollapsed 5000000 --runThreadN 12 --soloCBwhitelist /home/bnphan/src/cellranger-6.0.0/lib/python/cellranger/barcodes/3M-february-2018.txt --soloFeatures GeneFull --soloBarcodeReadLength 0 --soloCBmatchWLtype 1MM --soloCellFilter EmptyDrops_CR --soloMultiMappers EM --soloUMIlen 12 --soloUMIdedup 1MM_CR --outSAMtype None
+	STAR version: 2.7.9a   compiled: 2021-05-04T09:43:56-0400 vega:/home/dobin/data/STAR/STARcode/STAR.master/source
+Nov 03 23:20:49 ..... started STAR run
+Nov 03 23:20:51 ..... loading genome
+
+EXITING because of FATAL ERROR: Genome version: 20201 is INCOMPATIBLE with running STAR version: 2.7.9a
+SOLUTION: please re-generate genome from scratch with running version of STAR, or with version: 2.7.4a
+
+Nov 03 23:20:51 ...... FATAL ERROR, exiting

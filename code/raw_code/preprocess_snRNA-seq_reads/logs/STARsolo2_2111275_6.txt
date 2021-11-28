@@ -1,0 +1,10 @@
+Aligning samples w/ STARsolo for: .
+	/home/bnphan/src/STAR-2.7.9a/bin/Linux_x86_64/STAR --outFileNamePrefix C-13151.Caudate. --soloType Droplet --readFilesIn /projects/pfenninggroup/singleCell/Logan_BU_Addiction_snRNA-seq/data/raw_data/BU_snRNAseq_Run1/2021_10_08_LoganR_RayM-295941646/2021_10_08_LoganR_RayM-470955485/C-13151/LR_RM_0920_C-13151_S4_L001_R2_001.fastq.gz /projects/pfenninggroup/singleCell/Logan_BU_Addiction_snRNA-seq/data/raw_data/BU_snRNAseq_Run1/2021_10_08_LoganR_RayM-295941646/2021_10_08_LoganR_RayM-470955485/C-13151/LR_RM_0920_C-13151_S4_L001_R1_001.fastq.gz --readFilesCommand zcat --genomeDir /home/bnphan/resources/genomes/GRCh38.p13 --limitOutSJcollapsed 5000000 --runThreadN 12 --soloCBwhitelist /home/bnphan/src/cellranger-6.0.0/lib/python/cellranger/barcodes/3M-february-2018.txt --soloFeatures GeneFull --soloBarcodeReadLength 0 --soloCBmatchWLtype 1MM --soloCellFilter EmptyDrops_CR --soloMultiMappers EM --soloUMIlen 12 --soloUMIdedup 1MM_CR --outSAMtype None
+	STAR version: 2.7.9a   compiled: 2021-05-04T09:43:56-0400 vega:/home/dobin/data/STAR/STARcode/STAR.master/source
+Nov 04 08:01:09 ..... started STAR run
+Nov 04 08:01:11 ..... loading genome
+Nov 04 08:02:57 ..... started mapping
+Nov 04 08:32:09 ..... finished mapping
+Nov 04 08:32:10 ..... started Solo counting
+Nov 04 08:33:48 ..... finished Solo counting
+Nov 04 08:33:48 ..... finished successfully
