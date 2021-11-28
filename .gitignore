@@ -1,0 +1,15 @@
+## exclude all data directories
+
+logs/*
+*.bam
+*.arrow
+*.gz
+*.rda
+*.rds
+*.log
+*.out.txt
+*.err.txt
+ArchRLogs*
+notebook*
+swap-pane
+data/*
