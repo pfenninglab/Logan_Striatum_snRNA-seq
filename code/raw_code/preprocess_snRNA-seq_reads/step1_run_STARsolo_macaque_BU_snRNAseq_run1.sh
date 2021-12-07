@@ -7,13 +7,13 @@
 #SBATCH --mem=60G
 #SBATCH --error=logs/STARsolo2_%A_%a.txt
 #SBATCH --output=logs/STARsolo2_%A_%a.txt
-#SBATCH --array=4-7
+#SBATCH --array=1-4
 
 source ~/.bashrc
 
 ###########################################
 # get sample name in demultiplex csv table
-PROJDIR=/projects/pfenninggroup/singleCell/Logan_BU_Addiction_snRNA-seq
+PROJDIR=/projects/pfenninggroup/singleCell/Logan_BU_Striatum_snRNA-seq
 DATADIR=${PROJDIR}/data/raw_data
 FASTQDIR=${DATADIR}/BU_snRNAseq_Run1/2021_10_08_LoganR_RayM-295941646/2021_10_08_LoganR_RayM-470955485
 SOLODIR=$DATADIR/STARsolo_out
@@ -21,8 +21,8 @@ SOLODIR=$DATADIR/STARsolo_out
 mkdir -p $TMPDIR $SOLODIR; cd $SOLODIR
 
 # sample-specific files
-SAMPLE_ID=$(awk -F ',' -v IND=${SLURM_ARRAY_TASK_ID} 'FNR == (IND + 1) {print $1}' ${DATADIR}/tables/OUD1_snRNA_seq_sampleSheet.csv )
-TISSUE=$(awk -F ',' -v IND=${SLURM_ARRAY_TASK_ID} 'FNR == (IND + 1) {print $2}' ${DATADIR}/tables/OUD1_snRNA_seq_sampleSheet.csv )
+SAMPLE_ID=$(awk -F ',' -v IND=${SLURM_ARRAY_TASK_ID} 'FNR == (IND + 1) {print $1}' ${PROJDIR}/data/tidy_data/tables/OUD1_snRNA_seq_sampleSheet.csv )
+TISSUE=$(awk -F ',' -v IND=${SLURM_ARRAY_TASK_ID} 'FNR == (IND + 1) {print $2}' ${PROJDIR}/data/tidy_data/tables/OUD1_snRNA_seq_sampleSheet.csv )
 PREFIX=${SAMPLE_ID}.${TISSUE}.
 
 ##################################################
@@ -52,10 +52,9 @@ if [[ ! -f "${PREFIX}Log.final.out" ]]; then
 	--soloMultiMappers EM \
 	--soloUMIlen 12 \
 	--soloUMIdedup 1MM_CR \
-	--outSAMtype None
-	# --outSAMtype BAM SortedByCoordinate \
-	# --outSJtype None \
-	# --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM CY UY
+	--outSAMtype BAM SortedByCoordinate \
+	--outSJtype None \
+	--outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM CY UY
 	rm -rf ${PREFIX}_STARtmp
 else 
 	echo "A completed STARsolo already exists: ${SOLODIR}/${PREFIX}Solo.out"
