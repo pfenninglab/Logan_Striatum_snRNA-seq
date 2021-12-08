@@ -14,6 +14,9 @@ library(SingleCellExperiment)
 library(scds)
 library(flexmix)
 library(SoupX)
+library(DropletUtils)
+library(DropletQC)
+library(Matrix)
 
 ss <- function(x, pattern, slot = 1, ...) { 
   sapply(strsplit(x = x, split = pattern, ...), '[', slot) }
@@ -36,12 +39,12 @@ STARsoloDIR= 'data/raw_data/STARsolo_out'
 ## find folders where filtered outputs are
 STARsolo_filtered_fn = STARsoloDIR %>% 
   list.dirs(full.names = T,recursive = T) %>%
-  str_subset('filtered$')
+  str_subset('GeneFull') %>% str_subset('filtered$')
 
 ## find folders where raw outputs are
 STARsolo_raw_fn = STARsoloDIR %>% 
   list.dirs(full.names = T,recursive = T) %>%
-  str_subset('raw$')
+  str_subset('GeneFull') %>% str_subset('raw$')
 
 ## name the file paths by string matching with regex patterns
 ## this gets sample names such as C-13114, based on folder naming convention 
@@ -54,10 +57,8 @@ head(STARsolo_raw_fn)
 ## look at files in these directories
 (tmp_fn = sapply(c(STARsolo_filtered_fn, STARsolo_raw_fn), list.files, full.names = T))
 ## files should show barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz
-for(file in unlist(tmp_fn)){
-  ## if not gzipped, we can do that now
-  if(!grepl('.gz$', file)) R.utils::gzip(file)
-}
+parallel::mclapply(unlist(tmp_fn), function(file) 
+  if(!grepl('.gz$', file)) R.utils::gzip(file), mc.cores = 8)
 
 
 ##################################
@@ -97,12 +98,59 @@ for(sample in names(STARsolo_raw_fn)){
   }
 }
 
+
+#####################################################
+# 3) use STARsolo RNA velocity estimates (spliced vs. unspliced counts)
+# to estimate %nuclear reads per cell for DropletQC
+## https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02547-0
+## https://github.com/powellgenomicslab/DropletQC
+STARsolo_fn = STARsoloDIR %>% 
+  list.dirs(full.names = T,recursive = T) %>% str_subset('GeneFull$')
+names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Caudate.Solo.out)",2)
+
+## create filenames for nuclear fraction estimate tables
+nuclearFractionEstimates_fn = 
+  setNames(file.path(STARsolo_fn, 'DropletQC_NuclearFraction.txt.gz'), names(STARsolo_fn))
+
+## for each sample, compute the nuclear fraction
+for (sample in names(STARsolo_fn)){
+  if(file.exists(nuclearFractionEstimates_fn[sample])){
+      print(paste("DropletQC has already been computed for", sample))
+  } else{
+    print(paste('Reading in velocity counts for:', sample,'.'))
+    file = STARsolo_fn[sample]
+    
+    ## grab the cell barcodes from the velocity counts
+    barcodes = file %>% stringr::str_replace('GeneFull', 'Velocyto') %>% 
+      file.path('raw/barcodes.tsv.gz') %>% 
+      data.table::fread(header = F, col.names = 'barcodes')
+    
+    ## total the exonic UMI counts per cell
+    exon_sum <- file %>% stringr::str_replace('GeneFull', 'Velocyto') %>% 
+      file.path('raw/spliced.mtx.gz') %>% Matrix::readMM() %>% Matrix::colSums()
+    
+    ## total the intron UMI counts per cell
+    intron_sum <- file %>%  stringr::str_replace('GeneFull', 'Velocyto') %>% 
+      file.path('raw/unspliced.mtx.gz') %>% Matrix::readMM() %>% Matrix::colSums()
+    
+    ## compute the per-cell nuclear fraction
+    nuc_frac = intron_sum / (intron_sum + exon_sum)
+    nuc_frac[is.na(nuc_frac)] = 0
+    
+    ## write output to gzipped table
+    print(paste('Nuclear fraction output to:', nuclearFractionEstimates_fn[sample]))
+    nuclearFraction_df = 
+      data.frame(barcodes = barcodes, nuclear_fraction = nuc_frac) %>% 
+      write_tsv(nuclearFractionEstimates_fn[sample])
+  }
+}
+
+
 ##############################################
-# 3) Load the snRNA-seq with Seurat functions
+# 4) Load the snRNA-seq with Seurat functions
 ## find folders w/ ambient RNA-corrected coutns outputs are
 STARsolo_fn = STARsoloDIR %>% 
-  list.dirs(full.names = T,recursive = T) %>%
-  str_subset('SoupX_counts$')
+  list.dirs(full.names = T,recursive = T) %>% str_subset('SoupX_counts$')
 names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Caudate.Solo.out)",2)
 
 ## loops over each file name, runs the Read10X function
@@ -114,8 +162,9 @@ dataList <- lapply(STARsolo_fn, Read10X, strip.suffix = TRUE)
 objList <- mapply(CreateSeuratObject, min.cells = 3, min.features = 200,
                   counts = dataList, project = names(dataList))
 
+
 ###################################
-# 4) compute QC metrics per sample
+# 5) compute QC metrics per sample
 ## compute SCDS doublet scores 
 objList = lapply(objList, function(obj){
   ## convert to SingleCellExperiment Object first
@@ -138,8 +187,27 @@ objList = lapply(objList, function(obj){
   return(obj)
 })
 
+## add in the nuclear fraction per cell, for DropletQC later on
+objList = lapply(objList, function(obj){
+  sample = unique(obj$orig.ident)[1]
+  print(paste0('Getting nuclear fraction for ', sample,'.'))
+  
+  ## read in the nuclear fractions for this sample
+  nuc_frac_fn = STARsoloDIR %>%
+    list.dirs(full.names = T,recursive = T) %>% str_subset('GeneFull$') %>% 
+    str_subset(as.character(sample)) %>% file.path('DropletQC_NuclearFraction.txt.gz')
+  print(paste0('NuclearFraction from ', nuc_frac_fn,'.'))
+  nf = nuc_frac_fn %>% read_tsv(show_col_types = FALSE) %>%
+    filter(barcodes %in% colnames(obj)) %>% 
+    column_to_rownames('barcodes')
+  
+  ## add score back to Seurat object, high score more likely doublet
+  obj$dropletQC.nucFrac = nf[colnames(obj),'nuclear_fraction']
+  return(obj)
+})
+
 #######################################################################
-# 5) perform SCTransform and PCA embedding to be integrated in full dataset
+# 6) perform SCTransform and PCA embedding to be integrated in full dataset
 ## SCTransform on each sample separately
 objList = lapply(objList, SCTransform, method = "glmGamPoi", 
                  vars.to.regress = "percent.mt",verbose = TRUE)
@@ -147,8 +215,9 @@ objList = lapply(objList, SCTransform, method = "glmGamPoi",
 ## compute PCA on each SCT object separately
 objList = lapply(objList, RunPCA, verbose = FALSE)
 
+
 ####################################
-# 6) save objects and write to file
+# 7) save objects and write to file
 save_fn = here('data/raw_data/Seurat_objects', 
                  paste0('STARsolo_SoupX_rawCounts_',names(dataList), '.rds'))
 mapply(saveRDS, object = objList, file = save_fn)
