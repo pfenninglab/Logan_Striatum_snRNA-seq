@@ -3,6 +3,7 @@
 library(here)
 library(tidyverse)
 library(RColorBrewer)
+library(rcartocolor)
 
 ## main Seurat package snRNA-seq pacakges
 library(Seurat)
@@ -24,17 +25,17 @@ names(subtypes_col) = subtypes
 
 othertypes = c('Interneurons', 'Astrocytes', 'Endothelial', 'Microglia', 
                'Mural/Fibroblast', 'Oligos', 'Oligos_Pre')
-othertypes_col = brewer.pal(n = length(othertypes), name = 'Dark2')
+othertypes_col = carto_pal(length(othertypes), "Vivid")
 names(othertypes_col) = othertypes
+
 
 ##################################################
 # 1) load in full dataset cell type labels for plot
 
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-   "BU_Run1_Striatum_filtered_SCT_SeuratObj_N4.h5Seurat") %>% LoadH5Seurat() 
-obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype2 %in% subtypes, 'MSN', 'Other'))
-obj_merged$group = relevel(factor(obj_merged$group), ref = 'Other')
+   "BU_Run1_Striatum_filtered_SCT_SeuratObj_N4.h5Seurat") %>% 
+  LoadH5Seurat(assay = 'RNA') 
 
 pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_UMAP_all.ident.pdf'), width = 7.25, height = 4)
 Idents(obj_merged) = obj_merged$orig.ident
@@ -73,7 +74,7 @@ dev.off()
 ## read in Logan BU snRNA dataset to label transfer
 obj_msn = here('data/tidy_data/Seurat_projects', 
                     "BU_Run1_Striatum_subsetMSN_SCT_SeuratObj_N4.h5Seurat") %>% 
-  LoadH5Seurat()
+  LoadH5Seurat(assay = 'RNA')
 
 ## plot MSN subtypes by subjects
 pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_UMAP_msn.ident.pdf'), width = 7.25, height = 4)
