@@ -7,6 +7,7 @@ library(tidyverse)
 library(Seurat)
 library(SeuratDisk)
 library(SeuratWrappers)
+library(DropletQC)
 library(future)
 
 ss <- function(x, pattern, slot = 1, ...) { 
@@ -140,10 +141,10 @@ obj_filtered = obj_filtered %>% RunPCA(verbose = FALSE) %>%
 ## save as h5 object for on-disk computation
 save_proj_h5_fn = here('data/tidy_data/Seurat_projects', 
                        paste0("BU_Run1_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.h5Seurat'))
-SaveH5Seurat(obj_merged, filename = save_proj_h5_fn,overwrite = TRUE)
+SaveH5Seurat(obj_filtered, filename = save_proj_h5_fn,overwrite = TRUE)
 
 ## save normalized, UMAP embedded, object for downstream analyses
 save_proj_fn = here('data/tidy_data/Seurat_projects', 
                       paste0("BU_Run1_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.rds'))
-saveRDS(obj_merged, save_proj_fn)
+saveRDS(obj_filtered, save_proj_fn)
 
