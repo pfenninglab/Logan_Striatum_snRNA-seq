@@ -20,6 +20,7 @@ DATADIR='data/tidy_data/HeKleyman2021_macaque_striatum_data_processing'
 ## set to be parallel over 8 cores
 plan("multicore", workers = 8)
 options(future.globals.maxSize = 20000 * 1024^2)
+options(future.rng.onMisuse = 'ignore')
 
 ##################################################
 # 1) load in cell type labels for label transfer
@@ -32,7 +33,8 @@ obj_merged = save_merged_fn %>% LoadH5Seurat()
 ## subject to same region in monkey, recompute PCA space
 monkey_all = here(DATADIR, 'rdas', 
                   'GSE167920_Results_full_nuclei_processed_final.h5Seurat') %>% 
-  LoadH5Seurat(assays = "integrated") %>% subset(subset = region_name == "caudate") %>% 
+  LoadH5Seurat(assays = "integrated") %>% 
+  subset(subset = region_name == "caudate") %>% 
   RunPCA(verbose = FALSE)
 
 head(monkey_all[[]])
@@ -71,6 +73,7 @@ cluster_to_macAll = colnames(tbl1)
 names(cluster_to_macAll) = rownames(tbl1)[apply(tbl1, 2, which.max)]
 cluster_to_macAll
 
+
 ######################################################################
 # 3) transfer cell type labels from Macaque MSN sub-type nuclei dataset
 ## split the BU data to just predicted MSN subtypes
@@ -104,6 +107,8 @@ obj_merged$celltype2 = with(obj_merged[[]], ifelse(is.na(celltype2 ),celltype1, 
 cluster_to_macMSN = colnames(tbl2)
 names(cluster_to_macMSN) = rownames(tbl2)[apply(tbl2, 2, which.max)]
 table(obj_msn$celltype2)
+cluster_to_macMSN
+
 
 ############################################
 # 4) save the subset of cells that are MSNs
