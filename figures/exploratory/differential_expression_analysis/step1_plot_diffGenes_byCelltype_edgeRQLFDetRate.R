@@ -24,7 +24,7 @@ dir.create(PLOTDIR, showWarnings = F)
 
 ##################################################
 # 1) load in cell type labels for label transfer
-sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_Run1_Striatum_merged_SCT_SeuratObj_N4")
+sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_Run1_Striatum_merged_RNA_SeuratObj_N4")
 
 ## sore cell type IDs (kids) and sample IDs (sids)
 nk <- length(kids <- rlang::set_names(levels(factor(sce$celltype2))))

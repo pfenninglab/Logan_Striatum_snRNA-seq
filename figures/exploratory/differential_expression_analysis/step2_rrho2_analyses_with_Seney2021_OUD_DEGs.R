@@ -15,7 +15,7 @@ dir.create(PLOTDIR, showWarnings = F)
 
 ##############################################
 # 1) load in the Seney et al. OUD DEG tables
-tb_fn = list.files('data/tidy_data/Seney2021_OUDvsCTL_bulk_DLPFC_NAc_tables/tables', 
+tb_fn = list.files(here('data/tidy_data/Seney2021_OUDvsCTL_bulk_DLPFC_NAc_tables/tables'), 
                    pattern = '.xlsx', full.names = T)
 names(tb_fn) = basename(tb_fn) %>% ss('\\.', 3)
 degList = tb_fn %>% lapply(readxl::read_xlsx) %>% 
