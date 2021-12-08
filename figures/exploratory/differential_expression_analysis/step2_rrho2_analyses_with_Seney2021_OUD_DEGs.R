@@ -46,6 +46,9 @@ celltype_degList = lapply(res, function(x) {
     arrange(gene_symbol)
   })
 
+## exclude the UNK cell types
+celltype_degList = celltype_degList[!grepl('UNK|Mural', names(celltype_degList))]
+
 ################################################################################
 # 4) plot the rank-rank hypergeometric overlap of the OUD v. CTL DEG profiles
 plot_fn = here(PLOTDIR, 'BU_Run1_Striatum_edgeRQLFDetRateRes_N4.RRHO2wSeney2021.pdf')
