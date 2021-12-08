@@ -47,7 +47,7 @@ sce = as.SingleCellExperiment(obj)
 # 2) compute per-sample per cell type pseudobulk DGE profiles
 ## save to hdf5 file format for quick save/load
 h5Dir =here(DATADIR, 'HDF5Array'); dir.create(h5Dir, showWarnings = F)
-saveHDF5SummarizedExperiment(sce, h5Dir, prefix="BU_Run1_Striatum_merged_RNA_SeuratObj_N4")
+saveHDF5SummarizedExperiment(sce, h5Dir, prefix="BU_Run1_Striatum_merged_RNA_SeuratObj_N4", replace=TRUE)
 sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_Run1_Striatum_merged_RNA_SeuratObj_N4")
 
 ## store cell type IDs (kids) and sample IDs (sids)

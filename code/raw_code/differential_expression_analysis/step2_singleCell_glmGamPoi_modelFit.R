@@ -59,11 +59,11 @@ celltypes = c('D1-Matrix', 'D2-Matrix', 'D1/D2-Hybrid',  'D1-Striosome',
               'Microglia', 'Mural/Fibroblast', 'Oligos', 'Oligos_Pre')
 celltypes = setNames(celltypes, celltypes)
 
-## for every cell type, compute the DEGs 
+## for every cell type, compute the DEGs
 res <- lapply(celltypes, function(cell) 
   test_de(fit, contrast = `DSM.IV.OUDOUD`, subset_to = celltype2 == cell,
           full_design = ~ DSM.IV.OUD + log10(nCount_RNA) - 1,
-          pseudobulk_by = orig.ident) )
+          pseudobulk_by = orig.ident))
 
 ####################################################################
 ## 4) save the output of edgeRQLFDetRate differential state analyses
@@ -71,7 +71,7 @@ res = lapply(res, function(x) x %>%
                dplyr::rename('gene' = 'name', 'p_val' = 'pval', 'logFC' = 'lfc', 
                              'p_adj' = 'adj_pval', 'F' = 'f_statistic'))
 
-rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
+rdasDir = file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
 save_res_fn = here(rdasDir, 'BU_Run1_Striatum_glmGamPoiRes_byCelltype2_N4.rds')
 saveRDS(res, save_res_fn)
 
