@@ -45,17 +45,19 @@ if [[ ! -f "${PREFIX}Log.final.out" ]]; then
 	--limitOutSJcollapsed 5000000 \
 	--runThreadN 12 \
 	--soloCBwhitelist $BARCODES \
-	--soloFeatures GeneFull \
+	--soloFeatures GeneFull Gene Velocyto \
 	--soloBarcodeReadLength 0 \
 	--soloCBmatchWLtype 1MM \
 	--soloCellFilter EmptyDrops_CR \
 	--soloMultiMappers EM \
 	--soloUMIlen 12 \
 	--soloUMIdedup 1MM_CR \
-	--outSAMtype BAM SortedByCoordinate \
-	--outSJtype None \
-	--outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM CY UY
+	--outSAMtype None
+	# --outSAMtype BAM SortedByCoordinate \
+	# --outSJtype None \
+	# --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM CY UY
 	rm -rf ${PREFIX}_STARtmp
+	
 else 
 	echo "A completed STARsolo already exists: ${SOLODIR}/${PREFIX}Solo.out"
 fi
