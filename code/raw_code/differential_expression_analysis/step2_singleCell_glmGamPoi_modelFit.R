@@ -40,7 +40,7 @@ sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_Run1_Striatum_merged_RNA_Se
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
 save_fit_fn = here(rdasDir, 'BU_Run1_Striatum_glmGamPoi_modelFit_N4.rds')
 
-if(!file.exists(save_fit_fn)){
+if(file.exists(save_fit_fn)){
   ## fit the glmGamPoi model for single cell expression
   fit <- glm_gp(sce, design = ~ celltype2 + DSM.IV.OUD + DSM.IV.OUD:celltype2 - 1,
                 size_factors = 'deconvolution', reference_level = "Oligos" , 

@@ -61,7 +61,10 @@ anchors.mac_all <- FindTransferAnchors(
 
 ## predict BU cell type w/ macaque 'cell_type_2' column
 predictions.mac_all <- TransferData(
-  anchorset = anchors.mac_all, refdata = monkey_all$cell_type_2, dims = 1:30)
+  anchorset = anchors.mac_all, refdata = monkey_all$cell_type_2, dims = 1:30, store.weights = F)
+score_threshold = .5
+predictions.mac_all$predicted.id = 
+  with(predictions.mac_all, ifelse(prediction.score.max < score_threshold, 'UNK_ALL', predicted.id))
 
 ## append the predicted cell type to 
 obj_merged <- AddMetaData(obj_merged, metadata = predictions.mac_all$predicted.id,
@@ -95,6 +98,11 @@ anchors.mac_msn <- FindTransferAnchors(
 ## predict BU MSNs at the subtype level
 predictions.mac_msn <- TransferData(anchorset = anchors.mac_msn, 
                                     refdata = monkey_msn$MSN_type, dims = 1:30)
+
+## set less confident predictions to unknown celltype
+score_threshold = 0.5
+predictions.mac_msn$predicted.id =
+  with(predictions.mac_msn, ifelse(prediction.score.max < score_threshold, 'UNK_MSN', predicted.id))
 
 ## transfer MSN subtypes labels back to MSN and full dataset
 obj_msn <- AddMetaData(obj_msn, metadata = predictions.mac_msn$predicted.id,
