@@ -29,28 +29,26 @@ names(save_fn) = basename(save_fn) %>% ss('STARsolo_SoupX_rawCounts_|.rds', 2)
 num_samples = length(save_fn)
 objList = lapply(save_fn, readRDS)
 
-## subset cells to those not predicted low QC or doublet
-objList = lapply(objList, subset, subset = miQC.keep == "keep" & scds.keep == "keep")
-
 ########################################################
 # 2) use Seurat reciprocal PCA to join samples together
-
 ## find integrating features
 features <- SelectIntegrationFeatures(object.list = objList, nfeatures = 3000)
 objList <- PrepSCTIntegration(object.list = objList, anchor.features = features)
-objList <- lapply(X = objList, FUN = RunPCA, features = features)
+objList <- lapply(X = objList, FUN = RunPCA, features = features, verbose = FALSE)
 
-## find pair-wise anchoring cells for 
+## find pair-wise anchoring cells between samples
 obj.anchors <- FindIntegrationAnchors(
   object.list = objList, normalization.method = "SCT", 
   anchor.features = features, dims = 1:30, reduction = "rpca", k.anchor = 20)
 
 ## merging samples together into a joint space
-obj_merged <- IntegrateData(anchorset = obj.anchors, normalization.method = "SCT", dims = 1:30)
-obj_merged <- RunPCA(obj_merged, verbose = FALSE)
-obj_merged <- RunUMAP(obj_merged, reduction = "pca", dims = 1:30)
-obj_merged <- FindNeighbors(obj_merged, dims = 1:30, verbose = TRUE)
-obj_merged <- FindClusters(obj_merged, resolution = 0.5, algorithm = 2, verbose = TRUE)
+obj_merged <- obj.anchors %>% 
+  IntegrateData(normalization.method = "SCT", dims = 1:30) %>%
+  RunPCA(verbose = FALSE) %>% 
+  RunUMAP(reduction = "pca", dims = 1:30) %>% 
+  FindNeighbors(dims = 1:30, verbose = TRUE) %>% 
+  FindClusters(resolution = 1, algorithm = 2, verbose = TRUE)
+
 
 #####################################
 # 3) add in patient/sample metadata
@@ -82,14 +80,63 @@ head(obj_merged@meta.data)
 obj_merged@meta.data = cbind(obj_merged@meta.data, pheno[obj_merged[[]][,'orig.ident'],])
 head(obj_merged@meta.data)
 
+###############################################
+# 5) filter the lower quality cells
+
+## Run DropletQC's identify_empty_drops function
+nf.umi <- obj_merged[[]] %>% mutate(nf=dropletQC.nucFrac, umi=nCount_RNA) %>% 
+  relocate(nf, umi, .before = everything())
+
+## estimate cell, empty droplet, and damaged cell w/ DropletQC algorithms
+DropletQC.ed <- nf.umi %>% 
+  identify_empty_drops(nf_rescue = 0.50, umi_rescue = 1000) %>%
+  relocate(cell_status, seurat_clusters, .after = umi) %>%
+  dplyr::select(nf:seurat_clusters) %>%
+  identify_damaged_cells(nf_sep = 0.15, umi_sep_perc = 50, verbose = FALSE)
+DropletQC.ed = DropletQC.ed$df
+
+## add Droplet QC empty droplet estimation to metadata
+obj_merged$dropletQC.keep = DropletQC.ed[colnames(obj_merged), 'cell_status']
+
+## look at which clusters should be kept by miQC per-cell fraction
+obj_merged@meta.data %>% group_by(seurat_clusters) %>%
+  summarise(num = n(), prop = sum(miQC.keep == 'keep') / n() ) %>% 
+  arrange(prop)
+
+## look at which clusters should be kept by doublet SCDS per-cell fraction
+obj_merged@meta.data %>% group_by(seurat_clusters) %>%
+  summarise(num = n(), prop = sum(scds.keep == 'keep') / n() ) %>% 
+  arrange(prop)
+
+## look at which clusters should be kept by both metrics
+(t1 = obj_merged@meta.data %>% group_by(seurat_clusters) %>%
+    summarise(num = n(), 
+              numKeep = sum(scds.keep == 'keep' & miQC.keep == 'keep' & dropletQC.keep == 'cell'), 
+              prop = sum(numKeep) / n() ) %>% arrange(prop))
+
+## keep cells in the clusters that have more than 10% of OK cells
+good_clusters <- t1 %>% filter(prop > 0.10) %>% pull(seurat_clusters)
+
 ## export unfiltered per-cell QC metric table
+obj_merged@meta.data = obj_merged[[]] %>% relocate(dropletQC.keep, .after = 'dropletQC.nucFrac')
 save_qcTale_fn = here('data/tidy_data/tables', 
                       paste0("BU_Run1_Striatum_unfiltered_QC_table_N",num_samples,'.txt.gz'))
 write_tsv(obj_merged@meta.data, save_qcTale_fn)
 
-###################
-# 4) save projects
+## subset cells to those not predicted low QC or doublet
+obj_filtered = subset(obj_merged, subset = miQC.keep == "keep" & 
+                        scds.keep == "keep" & dropletQC.keep == 'cell' &
+                        seurat_clusters %in% good_clusters)
 
+## recompute PCA and UMAP embedding post-filtering
+obj_filtered = obj_filtered %>% RunPCA(verbose = FALSE) %>% 
+  RunUMAP(reduction = "pca", dims = 1:30) %>%
+  FindNeighbors(dims = 1:30, verbose = TRUE) %>% 
+  FindClusters(resolution = 0.5, algorithm = 2, verbose = TRUE)
+
+
+###################
+# 5) save projects
 ## save as h5 object for on-disk computation
 save_proj_h5_fn = here('data/tidy_data/Seurat_projects', 
                        paste0("BU_Run1_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.h5Seurat'))
@@ -99,3 +146,4 @@ SaveH5Seurat(obj_merged, filename = save_proj_h5_fn,overwrite = TRUE)
 save_proj_fn = here('data/tidy_data/Seurat_projects', 
                       paste0("BU_Run1_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.rds'))
 saveRDS(obj_merged, save_proj_fn)
+
