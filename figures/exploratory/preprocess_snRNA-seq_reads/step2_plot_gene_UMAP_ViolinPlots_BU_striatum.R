@@ -22,8 +22,8 @@ PLOTDIR='figures/exploratory/preprocess_snRNA-seq_reads'
 
 ###################################
 # 0) pre-set colors and cell types 
-subtypes = c('D1-Matrix', 'D2-Matrix', 'D1/D2-Hybrid',  'D1-Striosome', 'D2-Striosome', 'UNK_MSN')
-subtypes_col = brewer.pal(n = length(subtypes)+1, name = 'Paired') [-3]
+subtypes = c('D1-Matrix', 'D2-Matrix',  'D1-Striosome', 'D2-Striosome','D1/D2-Hybrid', 'UNK_MSN')
+subtypes_col = c('#1f78b4', '#a6cee3', '#e31a1c', '#fb9a99',  '#6a3d9a', '#b15928')
 names(subtypes_col) = subtypes
 
 othertypes = c('Interneurons', 'Astrocytes', 'Endothelial', 'Microglia', 

@@ -4,7 +4,7 @@ library(here)
 library(tidyverse)
 library(RColorBrewer)
 library(rcartocolor)
-
+library(ggpubr)
 ## main Seurat package snRNA-seq pacakges
 library(Seurat)
 library(SeuratDisk)
@@ -19,8 +19,8 @@ PLOTDIR='figures/exploratory/preprocess_snRNA-seq_reads'
 
 ###################################
 # 0) pre-set colors and cell types 
-subtypes = c('D1-Matrix', 'D2-Matrix', 'D1/D2-Hybrid',  'D1-Striosome', 'D2-Striosome', 'UNK_MSN')
-subtypes_col = brewer.pal(n = length(subtypes)+1, name = 'Paired') [-3]
+subtypes = c('D1-Matrix', 'D2-Matrix','D1-Striosome', 'D2-Striosome', 'D1/D2-Hybrid', 'UNK_MSN')
+subtypes_col = c('#1f78b4', '#a6cee3', '#e31a1c', '#fb9a99',  '#6a3d9a', '#b15928')
 names(subtypes_col) = subtypes
 
 othertypes = c('Interneurons', 'Astrocytes', 'Endothelial', 'Microglia', 
@@ -111,5 +111,21 @@ DimPlot(object = obj_msn, reduction = "umap", group.by = 'celltype2',
 dev.off()
 
 
+## plot number of estimated miQC compromised cells
+pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_CellTypeBarChart.perSample.pdf'), 
+    width = 7.25, height = 4, onefile = F)
+p1 = obj_merged[[]] %>% ggplot(aes(x = orig.ident, fill = celltype1)) + 
+  geom_bar(stat = 'count', position = 'fill')  + ylab('Proportion of cells') + 
+  scale_fill_manual(values = c('MSNs' = 'black', subtypes_col, othertypes_col), name = 'Cell type') +
+  theme_classic() + xlab('Sample')
+p2 =  obj_msn[[]] %>% ggplot(aes(x = orig.ident, fill = celltype2)) + 
+  geom_bar(stat = 'count', position = 'fill') + 
+  scale_fill_manual(values = c('MSNs' = 'black', subtypes_col, othertypes_col), name = 'Cell type') + 
+  theme_classic() + ylab('Proportion of cells') + 
+  xlab('Sample')
+
+ggarrange(p1, p2, labels = c("A", "B"), 
+          common.legend = TRUE, nrow = 1, legend="bottom")
+dev.off()
 
 
