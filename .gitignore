@@ -1,6 +1,6 @@
 ## exclude all data directories
 
-*/logs/*
+logs/
 
 *.bam
 *.arrow
@@ -13,7 +13,8 @@
 ArchRLogs*
 notebook*
 swap-pane
-data/*
+data/
+
 =======
 # History files
 .Rhistory
