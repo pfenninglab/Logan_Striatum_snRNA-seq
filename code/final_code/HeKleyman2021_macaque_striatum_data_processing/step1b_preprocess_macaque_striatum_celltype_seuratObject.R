@@ -25,7 +25,7 @@ monkey_all = here(DATADIR, 'rdas', 'GSE167920_Results_full_nuclei_processed_fina
 monkey_all$split = with(monkey_all[[]], 
                         paste(monkey, region_name, gsub('[ACGT-]','', colnames(monkey_all)),sep = '-'))
 
-## split by monkey, brain region, and comput SCTransform
+## split by monkey, brain region, and compute SCTransform
 monkey_all_list <- SplitObject(monkey_all, split.by = "split")
 monkey_all_list <- lapply(X = monkey_all_list, FUN = SCTransform, method = "glmGamPoi")
 features <- SelectIntegrationFeatures(object.list = monkey_all_list, nfeatures = 3000)
