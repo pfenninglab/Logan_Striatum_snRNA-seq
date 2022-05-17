@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 ## exclude all data directories
 
-logs/*
+*/logs/*
 *.bam
 *.arrow
 *.gz
