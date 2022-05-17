@@ -1,7 +1,7 @@
-<<<<<<< HEAD
 ## exclude all data directories
 
 */logs/*
+
 *.bam
 *.arrow
 *.gz
@@ -54,4 +54,3 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
->>>>>>> 1c977a9e9015f1e4067c617a55fee967d12a0891
