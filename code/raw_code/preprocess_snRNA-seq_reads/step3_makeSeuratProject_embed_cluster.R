@@ -53,7 +53,7 @@ obj_merged <- obj.anchors %>%
 
 #####################################
 # 3) add in patient/sample metadata
-pheno = read.csv(here('data/tidy_data/tables/OUD1_snRNA_seq_sampleSheet.csv')) %>%
+pheno = readxl::read_xlsx(here('data/tidy_data/tables/LR_RM_OUD_snRNAseq_SampleInfo.xlsx')) %>%
   rename_with(make.names) %>%
   rename_with(~ gsub("(\\.){2,}", '\\.', .x)) %>%
   rename_with(~ gsub('\\.$', '', .x)) %>%
