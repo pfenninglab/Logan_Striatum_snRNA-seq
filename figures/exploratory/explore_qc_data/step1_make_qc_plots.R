@@ -15,7 +15,8 @@ PROJDIR='figures/exploratory/explore_qc_data'
 here(PROJDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ## read in the phenotype data
-pd = read_csv(here('data/tidy_data', 'tables', 'LR_RM_BUMSR_Library_Index_Key_Run1_Run2.csv')) %>%
+pd = here('data/tidy_data', 'tables', 'LR_RM_BUMSR_Library_Index_Key_Run1_Run2.csv') %>%
+  read_csv() %>%
   rename_with(make.names) %>%
   mutate(Region = case_when(grepl('P',Sample) ~ 'Putamen',
                             grepl('C',Sample) ~ 'Caudate'),
