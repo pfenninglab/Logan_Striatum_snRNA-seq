@@ -14,8 +14,8 @@ options(stringsAsFactors = F)
 options(repr.plot.width=11, repr.plot.height=8.5)
 
 DATADIR='data/tidy_data/HeKleyman2021_macaque_striatum_data_processing'
-plan("multicore", workers = 8)
-options(future.globals.maxSize = 20000 * 1024^2)
+plan("multicore", workers = 16)
+options(future.globals.maxSize = 20 * 1024^3)
 
 #######################################################################
 # 1) read in labeled monkey all nuclei dataset, He, Kleyman et al. 2021
@@ -33,9 +33,7 @@ monkey_all_list <- PrepSCTIntegration(object.list = monkey_all_list, anchor.feat
 monkey_all_list <- lapply(X = monkey_all_list, FUN = RunPCA, features = features)
 
 ## co-embed data into 1 SCTransformed space
-monkey_all.anchors <- FindIntegrationAnchors(
-  object.list = monkey_all_list, normalization.method = "SCT",
-  anchor.features = features, dims = 1:30, reduction = "rpca", k.anchor = 20)
+monkey_all.anchors <- FindIntegrationAnchors(object.list = monkey_all_list, normalization.method = "SCT", anchor.features = features, dims = 1:30, reduction = "rpca", k.anchor = 20)
 monkey_all.combined.sct <- IntegrateData(anchorset = monkey_all.anchors, normalization.method = "SCT", dims = 1:30)
 monkey_all.combined.sct <- RunPCA(monkey_all.combined.sct, verbose = FALSE)
 monkey_all.combined.sct <- RunUMAP(monkey_all.combined.sct, reduction = "pca", dims = 1:30)
