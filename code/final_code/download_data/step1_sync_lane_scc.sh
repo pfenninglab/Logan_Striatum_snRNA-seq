@@ -2,7 +2,6 @@
 
 ###########################################
 ######## transfer from Lane to SCC ########
-
 LANEDIR=bnphan@lanec1.compbio.cs.cmu.edu:/projects/pfenninggroup/singleCell/Logan_BU_Striatum_snRNA-seq
 BU_DIR=/restricted/project/singlecell-rl/Logan_BU_Striatum_snRNA-seq
 
@@ -26,4 +25,12 @@ rsync -Paq $LANEDIR/data/raw_data/STARsolo_out $BU_DIR/data/raw_data
 
 ###########################################
 ######## transfer from SCC to Lane ########
-rsync -Paun $BU_DIR/ $LANEDIR
+rsync -Paun $BU_DIR/data $LANEDIR
+rsync -Paun $BU_DIR/code $LANEDIR
+rsync -Paun $BU_DIR/figures $LANEDIR
+
+
+rsync -Pau $BU_DIR/data $LANEDIR
+rsync -Pau $BU_DIR/code $LANEDIR
+rsync -Pau $BU_DIR/figures $LANEDIR
+
