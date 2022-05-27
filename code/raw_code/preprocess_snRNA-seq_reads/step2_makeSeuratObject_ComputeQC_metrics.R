@@ -3,6 +3,8 @@
 library(here)
 library(tidyverse)
 
+## for maddie
+
 ## main Seurat package snRNA-seq pacakges
 library(Seurat)
 library(SeuratDisk)
@@ -26,7 +28,7 @@ options(repr.plot.width=11, repr.plot.height=8.5)
 #########################################################
 # 0) Seurat uses the future package for parallelization
 ## set to be parallel over 8 cores
-plan("multicore", workers = 8)
+plan("multicore", workers = 16)
 options(future.globals.maxSize = 20000 * 1024^2)
 options(future.rng.onMisuse = 'ignore')
 
@@ -48,17 +50,17 @@ STARsolo_raw_fn = STARsoloDIR %>%
 
 ## name the file paths by string matching with regex patterns
 ## this gets sample names such as C-13114, based on folder naming convention 
-names(STARsolo_filtered_fn) = ss(STARsolo_filtered_fn,"(STARsolo_out/)|(.Caudate.Solo.out)",2)
+names(STARsolo_filtered_fn) = ss(STARsolo_filtered_fn,"(STARsolo_out/)|(.Solo.out)",2)
 head(STARsolo_filtered_fn)
 
-names(STARsolo_raw_fn) = ss(STARsolo_raw_fn,"(STARsolo_out/)|(.Caudate.Solo.out)",2)
+names(STARsolo_raw_fn) = ss(STARsolo_raw_fn,"(STARsolo_out/)|(.Solo.out)",2)
 head(STARsolo_raw_fn)
 
 ## look at files in these directories
 (tmp_fn = sapply(c(STARsolo_filtered_fn, STARsolo_raw_fn), list.files, full.names = T))
 ## files should show barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz
 parallel::mclapply(unlist(tmp_fn), function(file) 
-  if(!grepl('.gz$', file)) R.utils::gzip(file), mc.cores = 8)
+  if(!grepl('.gz$', file)) R.utils::gzip(file), mc.cores = 16)
 
 
 ##################################
@@ -106,7 +108,7 @@ for(sample in names(STARsolo_raw_fn)){
 ## https://github.com/powellgenomicslab/DropletQC
 STARsolo_fn = STARsoloDIR %>% 
   list.dirs(full.names = T,recursive = T) %>% str_subset('GeneFull$')
-names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Caudate.Solo.out)",2)
+names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Solo.out)",2)
 
 ## create filenames for nuclear fraction estimate tables
 nuclearFractionEstimates_fn = 
@@ -151,7 +153,7 @@ for (sample in names(STARsolo_fn)){
 ## find folders w/ ambient RNA-corrected coutns outputs are
 STARsolo_fn = STARsoloDIR %>% 
   list.dirs(full.names = T,recursive = T) %>% str_subset('SoupX_counts$')
-names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Caudate.Solo.out)",2)
+names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Solo.out)",2)
 
 ## loops over each file name, runs the Read10X function
 dataList <- lapply(STARsolo_fn, Read10X, strip.suffix = TRUE)
