@@ -16,7 +16,7 @@ source ~/.bashrc
 # get sample name in demultiplex csv table
 PROJDIR=/projects/pfenninggroup/singleCell/Logan_BU_Striatum_snRNA-seq
 DATADIR=${PROJDIR}/data/raw_data
-FASTQDIR=${DATADIR}/fastq
+FASTQDIR=/data/pfenninggroup/singleCell/Logan_BU_Striatum_snRNA-seq/fastq
 SOLODIR=$DATADIR/STARsolo_out
 TMPDIR=/scratch/${USER}
 
