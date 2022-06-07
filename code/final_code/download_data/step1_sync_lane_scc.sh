@@ -29,7 +29,7 @@ rsync -Paun $BU_DIR/data $LANEDIR
 rsync -Paun $BU_DIR/code $LANEDIR
 rsync -Paun $BU_DIR/figures $LANEDIR
 
-
 rsync -Pau $BU_DIR/data $LANEDIR
 rsync -Pau $BU_DIR/code $LANEDIR
 rsync -Pau $BU_DIR/figures $LANEDIR
+
