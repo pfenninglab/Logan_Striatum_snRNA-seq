@@ -17,8 +17,8 @@ options(repr.plot.width=11, repr.plot.height=8.5)
 
 ###################################################################
 # 0) Seurat uses the future package for parallelization
-## set to be parallel over 16 cores
-plan("multicore", workers = 32)
+## set to be parallel over 28 cores with 500Gb
+plan("multicore", workers = 28)
 options(future.rng.onMisuse = 'ignore')
 options(future.globals.maxSize = 150 * 1024^3)
 
@@ -37,9 +37,16 @@ features <- SelectIntegrationFeatures(object.list = objList, nfeatures = 3000)
 objList <- PrepSCTIntegration(object.list = objList, anchor.features = features)
 objList <- lapply(X = objList, FUN = RunPCA, features = features, verbose = FALSE)
 
-## find pair-wise anchoring cells between samples
+## select representative caudate and putamen samples for integration
+## both these samples are control subjects/good number cells & depth
+## and one of each sex based on:
+## https://satijalab.org/seurat/articles/integration_large_datasets.html
+ref = which(names(objList) %in% c('LR_RM_C1488', 'LR_RM_P1488', 
+                                  'LR_RM_C13114', 'LR_RM_P1034'))
+
+## find pair-wise anchoring cells between samples and each reference
 obj.anchors <- FindIntegrationAnchors(
-  object.list = objList, normalization.method = "SCT", 
+  object.list = objList, normalization.method = "SCT", reference = ref,
   anchor.features = features, dims = 1:30, reduction = "rpca", k.anchor = 20)
 
 ## merging samples together into a joint space
@@ -53,17 +60,17 @@ obj_merged <- obj.anchors %>%
 
 #####################################
 # 3) add in patient/sample metadata
-pheno = read.csv(here('data/tidy_data/tables/OUD1_snRNA_seq_sampleSheet.csv')) %>%
+pheno = readxl::read_xlsx(here('data/tidy_data/tables/LR_RM_OUD_snRNAseq_SampleInfo.xlsx')) %>%
   rename_with(make.names) %>%
   rename_with(~ gsub("(\\.){2,}", '\\.', .x)) %>%
   rename_with(~ gsub('\\.$', '', .x)) %>%
-  rename('Lifetime.Chronic.and.or.Acute.ATOD.Infectious.or.Inflammatory.Diagnosis' = 'Infxn.Dx',
-         'DSM.IV.Substance.Use.Disorder.Diagnosis.ATOD' = 'DSM.IV.SUD',
-         'DSM.IV.Co.Morbid.Psychiatric.Diagnosis.ATOD' = 'DSM.IV.Psych', 
-         'Duration.of.OUD.years' = 'Dur.OUD', 
-         'Age.years' = 'Age', 
-         'PMI.h'= 'PMI', 
-         'pHa' = 'pH') %>%
+  dplyr::rename('Infxn.Dx' = 'Lifetime.Chronic.and.or.Acute.ATOD.Infectious.or.Inflammatory.Diagnosis' ,
+                'DSM.IV.SUD' = 'DSM.IV.Substance.Use.Disorder.Diagnosis.ATOD',
+                'DSM.IV.Psych' = 'DSM.IV.Co.Morbid.Psychiatric.Diagnosis.ATOD', 
+                'Dur.OUD' = 'Duration.of.OUD.years', 
+                'Age' = 'Age.years', 
+                'PMI' = 'PMI.h', 
+                'pH' = 'pHa') %>%
   mutate(
     DSM.IV.OUD = ifelse(grepl('Opioid', DSM.IV.SUD), 'OUD', 'CTL') %>% factor(),
     DSM.IV.AUD = ifelse(grepl('Alcohol', DSM.IV.SUD), 'AUD', 'CTL') %>% factor(),

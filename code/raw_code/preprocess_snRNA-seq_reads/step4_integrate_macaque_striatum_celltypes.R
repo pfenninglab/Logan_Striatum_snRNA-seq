@@ -17,16 +17,16 @@ DATADIR='data/tidy_data/HeKleyman2021_macaque_striatum_data_processing'
 
 #######################################################
 # 0) Seurat uses the future package for parallelization
-## set to be parallel over 8 cores
-plan("multicore", workers = 8)
-options(future.globals.maxSize = 20000 * 1024^2)
+## set to be parallel over 28 cores
+plan("multicore", workers = 28)
+options(future.globals.maxSize = 100 * 1024^3)
 options(future.rng.onMisuse = 'ignore')
 
 ##################################################
 # 1) load in cell type labels for label transfer
 ## read in Logan BU snRNA dataset to label transfer
 save_merged_fn = here('data/tidy_data/Seurat_projects', 
-                        "BU_Run1_Striatum_filtered_SCT_SeuratObj_N4.h5Seurat")
+                        "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 obj_merged = save_merged_fn %>% LoadH5Seurat() 
 
 ## read in labeled monkey MSN subtype dataset, He, Kleyman et al. 2021
@@ -34,7 +34,7 @@ obj_merged = save_merged_fn %>% LoadH5Seurat()
 monkey_all = here(DATADIR, 'rdas', 
                   'GSE167920_Results_full_nuclei_processed_final.h5Seurat') %>% 
   LoadH5Seurat(assays = "integrated") %>% 
-  subset(subset = region_name == "caudate") %>% 
+  subset(subset = region_name %in% c( "caudate", 'putamen')) %>% 
   RunPCA(verbose = FALSE)
 
 head(monkey_all[[]])
@@ -43,7 +43,7 @@ head(monkey_all[[]])
 subtypes = c('D1-Matrix', 'D2-Matrix', 'D1-Striosome', 'D2-Striosome', 'D1/D2-Hybrid')
 monkey_msn = here(DATADIR, 'rdas', 'GSE167920_Results_MSNs_processed_final.h5Seurat') %>% 
   LoadH5Seurat(assays = "integrated") %>% 
-  subset(subset = region_name == "caudate") %>% 
+  subset(subset = region_name %in% c( "caudate", 'putamen')) %>% 
   subset(subset = MSN_type %in% subtypes) %>%
   RunPCA(verbose = FALSE)
 
@@ -120,7 +120,8 @@ cluster_to_macMSN
 
 ############################################
 # 4) save the subset of cells that are MSNs
-save_subset_msn = here('data/tidy_data/Seurat_projects', 
-                "BU_Run1_Striatum_subsetMSN_SCT_SeuratObj_N4.h5Seurat")
+save_subset_msn = here('data/tidy_data/Seurat_projects',
+                "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat")
 SaveH5Seurat(obj_msn, filename = save_subset_msn, overwrite = TRUE)
 SaveH5Seurat(obj_merged, filename = save_merged_fn, overwrite = TRUE)
+
