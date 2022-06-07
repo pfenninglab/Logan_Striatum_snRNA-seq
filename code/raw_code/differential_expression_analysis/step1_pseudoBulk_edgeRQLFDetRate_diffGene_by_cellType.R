@@ -27,15 +27,15 @@ DATADIR='data/tidy_data/differential_expression_analysis'
 
 #######################################################
 # 0) Seurat uses the future package for parallelization
-## set to be parallel over 8 cores
-plan("multicore", workers = 8)
-options(future.globals.maxSize = 20000 * 1024^2)
+## set to be parallel over 28 cores
+plan("multicore", workers = 28)
+options(future.globals.maxSize = 80 * 1024^3)
 
 ##################################################
 # 1) load in cell type labels for label transfer
 ## read in Logan BU snRNA dataset to label transfer
 save_merged_fn = here('data/tidy_data/Seurat_projects', 
-                        "BU_Run1_Striatum_filtered_SCT_SeuratObj_N4.h5Seurat")
+                        "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 ## load only the scaled and raw RNA counts
 obj = save_merged_fn %>% LoadH5Seurat(assay = 'RNA') 
 head(obj[[]])
@@ -47,10 +47,10 @@ sce = as.SingleCellExperiment(obj)
 # 2) compute per-sample per cell type pseudobulk DGE profiles
 ## save to hdf5 file format for quick save/load
 h5Dir =here(DATADIR, 'HDF5Array'); dir.create(h5Dir, showWarnings = F)
-saveHDF5SummarizedExperiment(sce, h5Dir, prefix="BU_Run1_Striatum_merged_RNA_SeuratObj_N4", replace=TRUE)
-sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_Run1_Striatum_merged_RNA_SeuratObj_N4")
+saveHDF5SummarizedExperiment(sce, h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat", replace=TRUE)
+sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 
-## store cell type IDs (kids) and sample IDs (sids)
+## store cell type IDs (k.ids) and sample IDs (s.ids)
 nk <- length(kids <- rlang::set_names(levels(factor(sce$celltype2))))
 ns <- length(sids <- rlang::set_names(levels(factor(sce$orig.ident))))
 
@@ -59,12 +59,21 @@ groups <- colData(sce)[, c("celltype2", "orig.ident")]
 pb <- aggregate.Matrix(t(counts(sce)), groupings = groups, fun = "sum") 
 
 ## split by cluster, transform & rename columns
-pb <- split.data.frame(pb, rep(kids, ns)) %>% 
-  lapply(function(u) magrittr::set_colnames(t(u), unname(sids)))
+split_names = gsub(paste(paste0('_', sids), collapse = '|'), '', rownames(pb) )
+pb <- split.data.frame(pb, rlang::set_names(split_names)) %>% 
+  lapply(function(u) magrittr::set_colnames(t(u), gsub(paste(paste0(kids, '_'), collapse = '|'), '', rownames(u) )))
+
+head(names(pb))
+
+## these cell types not found in every sample
+sapply(pb, ncol)
+exclude_celltypes = c('Endothelial', 'Mural/Fibroblast', 'UNK_ALL', 'UNK_MSN')
+pb = pb[!names(pb) %in% exclude_celltypes]
 
 ## create per-subject colData table
 pd_colData = colData(sce) %>% as.data.frame()%>%
   dplyr::select(orig.ident, Region:Cause.of.Death, starts_with('DSM.IV')) %>%
+  mutate(Pair = factor(Pair)) %>%
   filter(!duplicated(orig.ident))
 rownames(pd_colData) = pd_colData$orig.ident
 
@@ -76,14 +85,15 @@ rownames(pd_colData) = pd_colData$orig.ident
 ## for ea. cell type, run edgeRQLFDetRate w/ default parameters
 ## https://www.nature.com/articles/nmeth.4612
 ## https://github.com/csoneson/conquer_comparison/blob/master/scripts/apply_edgeRQLFDetRate.R
-res <- lapply(kids, function(k) {
+res <- lapply(kids[!kids %in% exclude_celltypes ], function(k) {
   ## calculate the detection rate of genes in this cell type
   y <- assays(pb)[[k]]
   cdr <- scale(colMeans(y > 0))
 
   ## construct design & contrast matrix regressing out the DetRate
-  design <- model.matrix(~ 0 + cdr.V1 + DSM.IV.OUD, data = cbind(colData(pb), cdr = cdr))
-  contrast <- makeContrasts("DSM.IV.OUDOUD-DSM.IV.OUDCTL", levels = design)
+  design <- model.matrix(~ 0 + cdr.V1 + Age + Sex + PMI + RIN + Region + DSM.IV.OUD, 
+                         data = cbind(colData(pb), cdr = cdr))
+  contrast <- makeContrasts("DSM.IV.OUDOUD", levels = design)
   
   ## fit per-cell type edgeR QLR w/ DetRate
   y <- DGEList(y, remove.zeros = TRUE)
@@ -101,5 +111,15 @@ res <- lapply(kids, function(k) {
 ####################################################################
 ## 4) save the output of edgeRQLFDetRate differential state analyses
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_Run1_Striatum_edgeRQLFDetRateRes_byCelltype2_N4.rds')
+save_res_fn = here(rdasDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_byCelltype2_N22.rds')
 saveRDS(res, save_res_fn)
+
+sapply(res, function(x) sum(x$p_adj < 0.05, na.rm = T))
+# Astrocytes    D1-Matrix D1-Striosome D1/D2-Hybrid    D2-Matrix D2-Striosome Interneurons    Microglia       Oligos   Oligos_Pre 
+#         50          295           45           20          172           27            1           79          588           59 
+
+lapply(res, function(x) x %>% arrange(p_adj) %>% head(10))
+lapply(res, function(x) x[c('OPRK1', 'OPRM1', 'OPRD1', 'PDYN', 'PENK'),] %>% 
+         filter(p_adj < 0.10) %>% arrange(p_adj) %>% head(10))
+
+res[['D1-Striosome']] %>%  filter(p_adj < 0.05) %>% arrange(p_adj)
