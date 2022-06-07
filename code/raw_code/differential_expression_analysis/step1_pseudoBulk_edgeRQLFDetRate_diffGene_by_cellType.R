@@ -3,6 +3,7 @@
 library(here)
 library(tidyverse)
 library(rlang)
+library(writexl)
 
 ## main Seurat package snRNA-seq pacakges
 library(Seurat)
@@ -114,6 +115,14 @@ rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
 save_res_fn = here(rdasDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_byCelltype2_N22.rds')
 saveRDS(res, save_res_fn)
 
+tablesDir =file.path(DATADIR, 'tables'); dir.create(tablesDir, showWarnings = F)
+save_res_fn2 = here(tablesDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_byCelltype2_N22.xlsx')
+names(res) = make.names(names(res))
+res %>% lapply(function(x) x %>% arrange(p_adj)) %>% writexl::write_xlsx(save_res_fn2)
+
+
+##############################
+## 5) cursory look at the DEGs
 sapply(res, function(x) sum(x$p_adj < 0.05, na.rm = T))
 # Astrocytes    D1-Matrix D1-Striosome D1/D2-Hybrid    D2-Matrix D2-Striosome Interneurons    Microglia       Oligos   Oligos_Pre 
 #         50          295           45           20          172           27            1           79          588           59 
