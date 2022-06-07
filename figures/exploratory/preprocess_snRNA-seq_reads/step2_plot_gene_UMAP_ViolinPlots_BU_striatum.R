@@ -37,7 +37,7 @@ names(othertypes_col) = othertypes
 
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_Run1_Striatum_filtered_SCT_SeuratObj_N4.h5Seurat") %>% 
+                  "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype2 %in% subtypes, 'MSN', 'Other'))
 obj_merged$group = relevel(factor(obj_merged$group), ref = 'Other')
@@ -47,14 +47,14 @@ Idents(obj_merged) = 'celltype1'
 
 ## Neuron vs. Glia markers
 markerGenes1 <- c('RBFOX3', 'LHX6', 'AQP4', 'CX3CR1', 'PDGFRA', 'MOG' )
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_UMAP_all.allMarkers.pdf'), width = 7.25, height = 4)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.allMarkers.pdf'), width = 7.25, height = 4)
 p1 = plot_density(obj_merged, features = markerGenes1,  reduction = "umap") +
   plot_layout(nrow = 2, guides = "auto") &
   theme_classic(base_size = 7) & theme(plot.title = element_text(size = 10))
 p1
 dev.off()
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_all.allMarkers.pdf'), width = 7.25, height = 5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_all.allMarkers.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_merged, features =c(markerGenes1), slot = "data",  pt.size = 0,
         cols = c('MSNs' = 'gray', othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
@@ -66,7 +66,7 @@ markMSN1 = c('Drd1','Tac1','Reln') %>% toupper()# D1 markers
 markMSN2 = c('Drd2','Adora2a','Penk')%>% toupper() # D2 markers
 markMSN3 = c('Foxp2', 'Rxfp1', 'Casz1')%>% toupper() # D1/2H markers
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_UMAP_all.MSNclusterMarkers.pdf'), width = 7.25, height = 3)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.MSNclusterMarkers.pdf'), width = 7.25, height = 3)
 p2 = plot_density(obj_merged, slot = 'data', features = markMSN1,  reduction = "umap", joint= T) &
   theme_classic(base_size = 7) & theme(plot.title = element_text(size = 8))
 p3 = plot_density(obj_merged, slot = 'data', features = markMSN2,  reduction = "umap", joint= T) &
@@ -80,11 +80,11 @@ dev.off()
 
 
 ## MSN compartments
-markMSN4 = c('STXBP6', 'SEMA3E', 'EPHA4', 'GDA') # Matrix markers
+markMSN22 = c('STXBP6', 'SEMA3E', 'EPHA4', 'GDA') # Matrix markers
 markMSN5 =c( 'PDYN', 'OPRM1', 'KHDRBS3', 'KCNIP1') # Striosome markers
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_UMAP_all.MSNcompMarkers.pdf'), width = 7.25, height = 3)
-p5 = plot_density(obj_merged, slot = 'data', features = markMSN4,  reduction = "umap") 
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.MSNcompMarkers.pdf'), width = 7.25, height = 3)
+p5 = plot_density(obj_merged, slot = 'data', features = markMSN22,  reduction = "umap") 
 p6 = plot_density(obj_merged, slot = 'data', features = markMSN5,  reduction = "umap", pal = 'inferno')
 p5 + plot_layout(nrow = 1) & theme_classic(base_size = 7) & 
   theme(plot.title = element_text(size = 8)) & theme(legend.position = 'bottom') 
@@ -99,7 +99,7 @@ markOPR2 = c( 'PENK', 'PDYN') # endorphin peptide genes
 obj_merged$celltype1 = factor(obj_merged$celltype1, levels = c('MSNs', othertypes)) 
 Idents(obj_merged) = 'celltype1'
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_all.opioids.pdf'), width = 7.25, height = 5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_all.opioids.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_merged, features =c(markOPR1, markOPR2), ncol = 3, slot = "data", pt.size = 0,
         fill.by = 'celltype1', group.by = 'celltype1', 
         cols = c('MSNs' = 'gray', othertypes_col), log = T) & 
@@ -107,7 +107,7 @@ VlnPlot(obj_merged, features =c(markOPR1, markOPR2), ncol = 3, slot = "data", pt
   coord_flip() 
 dev.off()
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_all.opioidsByDxSUD.pdf'), width = 7.25, height = 5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_all.opioidsByDxSUD.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_merged, features =c(markOPR1, markOPR2), slot = "data", pt.size = 0, 
         ncol = 3, group.by = 'celltype1', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), 
         split.plot = TRUE, log = T) & 
@@ -121,13 +121,13 @@ dev.off()
 # 2) plot genes at MSN subtype level
 ## read in Logan BU snRNA dataset to label transfer
 obj_msn = here('data/tidy_data/Seurat_projects', 
-               "BU_Run1_Striatum_subsetMSN_SCT_SeuratObj_N4.h5Seurat") %>% 
+               "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 obj_msn$celltype2 = factor(obj_msn$celltype2 , c(subtypes, othertypes))
 Idents(obj_msn) = 'celltype2'
 
-
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_msn.MSNclusterMarkers.pdf'), width = 7.25, height = 2.5)
+## plot by direct and indirect MSN markers, 
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNclusterMarkers.pdf'), width = 7.25, height = 2.5)
 VlnPlot(obj_msn, features =c(markMSN1), slot = "data", ncol = 3, pt.size = 0, 
         group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
@@ -140,22 +140,45 @@ VlnPlot(obj_msn, features =c(markMSN3), slot = "data", ncol = 3, pt.size = 0,
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_msn.MSNcompMarkers.pdf'), width = 7.25, height = 5)
-VlnPlot(obj_msn, features =c(markMSN4, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
+## plot by direct and indirect MSN markers, stratify by Dx
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNclusterMarkersByDxSUD.pdf'), width = 7.25, height = 2.5)
+VlnPlot(obj_msn, features =c(markMSN1), slot = "data", ncol = 3, pt.size = 0, 
+        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+  theme(legend.position = 'none', axis.title=element_blank()) 
+VlnPlot(obj_msn, features =c(markMSN2), slot = "data", ncol = 3, pt.size = 0, 
+        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+  theme(legend.position = 'none', axis.title=element_blank()) 
+VlnPlot(obj_msn, features =c(markMSN3), slot = "data", ncol = 3, pt.size = 0,
+        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+  theme(legend.position = 'none', axis.title=element_blank()) 
+dev.off()
+
+
+## plot by patch/matrix markers
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNcompMarkers.pdf'), width = 7.25, height = 5)
+VlnPlot(obj_msn, features =c(markMSN22, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
         group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank())
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_msn.opioids.pdf'), width = 7.25, height = 5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNcompMarkersByDxSUD.pdf'), width = 7.25, height = 5)
+VlnPlot(obj_msn, features =c(markMSN22, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
+        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+  theme(legend.position = 'none', axis.title=element_blank())
+dev.off()
+
+
+## plot by opioid receptors or endogenous peptides
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.opioids.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_msn, features =c(markOPR1, markOPR2), slot = "data", cols = subtypes_col, pt.size = 0) & 
   theme(legend.position = 'none', axis.title=element_blank()) & coord_flip() 
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_msn.opioidsByDxSUD.pdf'), width = 7.25, height = 5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.opioidsByDxSUD.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_msn, features =c(markOPR1,markOPR2), slot = "data", ncol = 3, pt.size = 0,
-        split.by = 'DSM.IV.SUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+        split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank()) & coord_flip() 
 dev.off()
 
