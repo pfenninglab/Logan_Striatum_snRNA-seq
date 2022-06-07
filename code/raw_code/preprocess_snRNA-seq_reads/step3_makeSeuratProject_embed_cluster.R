@@ -17,10 +17,10 @@ options(repr.plot.width=11, repr.plot.height=8.5)
 
 ###################################################################
 # 0) Seurat uses the future package for parallelization
-## set to be parallel over 8 cores
-plan("multicore", workers = 8)
+## set to be parallel over 16 cores
+plan("multicore", workers = 32)
 options(future.rng.onMisuse = 'ignore')
-options(future.globals.maxSize = 20000 * 1024^2)
+options(future.globals.maxSize = 150 * 1024^3)
 
 ###########################################################################
 # 1) load in indvidual snRNA-seq objects and create merged Seurat projects
@@ -53,7 +53,7 @@ obj_merged <- obj.anchors %>%
 
 #####################################
 # 3) add in patient/sample metadata
-pheno = readxl::read_xlsx(here('data/tidy_data/tables/LR_RM_OUD_snRNAseq_SampleInfo.xlsx')) %>%
+pheno = read.csv(here('data/tidy_data/tables/OUD1_snRNA_seq_sampleSheet.csv')) %>%
   rename_with(make.names) %>%
   rename_with(~ gsub("(\\.){2,}", '\\.', .x)) %>%
   rename_with(~ gsub('\\.$', '', .x)) %>%
@@ -121,7 +121,7 @@ good_clusters <- t1 %>% filter(prop > 0.10) %>% pull(seurat_clusters)
 ## export unfiltered per-cell QC metric table
 obj_merged@meta.data = obj_merged[[]] %>% relocate(dropletQC.keep, .after = 'dropletQC.nucFrac')
 save_qcTale_fn = here('data/tidy_data/tables', 
-                      paste0("BU_Run1_Striatum_unfiltered_QC_table_N",num_samples,'.txt.gz'))
+                      paste0("BU_OUD_Striatum_unfiltered_QC_table_N",num_samples,'.txt.gz'))
 write_tsv(obj_merged@meta.data, save_qcTale_fn)
 
 ## subset cells to those not predicted low QC or doublet
@@ -136,15 +136,14 @@ obj_filtered = obj_filtered %>% RunPCA(verbose = FALSE) %>%
   FindClusters(resolution = 0.5, algorithm = 2, verbose = TRUE)
 
 
-###################
-# 5) save projects
-## save as h5 object for on-disk computation
+#########################################################
+# 6) save projects, as h5 object for on-disk computation
 save_proj_h5_fn = here('data/tidy_data/Seurat_projects', 
-                       paste0("BU_Run1_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.h5Seurat'))
+                       paste0("BU_OUD_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.h5Seurat'))
 SaveH5Seurat(obj_filtered, filename = save_proj_h5_fn,overwrite = TRUE)
 
 ## save normalized, UMAP embedded, object for downstream analyses
 save_proj_fn = here('data/tidy_data/Seurat_projects', 
-                      paste0("BU_Run1_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.rds'))
+                      paste0("BU_OUD_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.rds'))
 saveRDS(obj_filtered, save_proj_fn)
 

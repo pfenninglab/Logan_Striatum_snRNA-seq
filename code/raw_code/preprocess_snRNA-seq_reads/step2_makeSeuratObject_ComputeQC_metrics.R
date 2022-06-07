@@ -41,16 +41,18 @@ STARsoloDIR= 'data/raw_data/STARsolo_out'
 ## find folders where filtered outputs are
 STARsolo_filtered_fn = STARsoloDIR %>% 
   list.dirs(full.names = T,recursive = T) %>%
-  str_subset('GeneFull') %>% str_subset('filtered$')
+  str_subset('GeneFull||Velocyto') %>% str_subset('filtered$') %>%
+  str_subset('/\\.', negate = TRUE)
 
 ## find folders where raw outputs are
 STARsolo_raw_fn = STARsoloDIR %>% 
   list.dirs(full.names = T,recursive = T) %>%
-  str_subset('GeneFull') %>% str_subset('raw$')
+  str_subset('GeneFull|Velocyto') %>% str_subset('raw$') %>%
+  str_subset('/\\.', negate = TRUE)
 
 ## name the file paths by string matching with regex patterns
 ## this gets sample names such as C-13114, based on folder naming convention 
-names(STARsolo_filtered_fn) = ss(STARsolo_filtered_fn,"(STARsolo_out/)|(.Solo.out)",2)
+names(STARsolo_filtered_fn) = ss(STARsolo_filtered_fn,"(STARsolo_out/)|(.Solo.out)",2) 
 head(STARsolo_filtered_fn)
 
 names(STARsolo_raw_fn) = ss(STARsolo_raw_fn,"(STARsolo_out/)|(.Solo.out)",2)
@@ -59,16 +61,20 @@ head(STARsolo_raw_fn)
 ## look at files in these directories
 (tmp_fn = sapply(c(STARsolo_filtered_fn, STARsolo_raw_fn), list.files, full.names = T))
 ## files should show barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz
-parallel::mclapply(unlist(tmp_fn), function(file) 
-  if(!grepl('.gz$', file)) R.utils::gzip(file), mc.cores = 16)
+parallel::mclapply(unlist(tmp_fn), R.utils::gzip, skip = T, mc.cores = 16)
 
 
 ##################################
 # 2) Ambient RNA removal by SoupX
+
+## subset the filtered/raw files only for the SoupX analyses
+STARsolo_filtered_fn = STARsolo_filtered_fn[grepl('GeneFull', STARsolo_filtered_fn)]
+STARsolo_raw_fn = STARsolo_raw_fn[grepl('GeneFull', STARsolo_raw_fn)]
+
 for(sample in names(STARsolo_raw_fn)){
   de_soup_counts_dn = gsub('filtered','SoupX_counts', STARsolo_filtered_fn[sample])
   if(dir.exists(de_soup_counts_dn)){
-    print(paste('SoupX already computed:', de_soup_counts_dn))
+      print(paste('SoupX already computed:', de_soup_counts_dn))
   } else{
     print(paste('Reading in counts for:', sample,'.'))
     ## read in the filtered counts and raw counts
@@ -96,7 +102,10 @@ for(sample in names(STARsolo_raw_fn)){
     
     ## adjust filtered cell counts for ambient RNA
     print(paste('Corrected counts output to:', de_soup_counts_dn))
-    write10xCounts(de_soup_counts_dn, out, barcodes = ss(colnames(out),'_',2), version = '3')
+    
+    ## string split (ss function) assumes barcode in the 4 slot of the column name
+    write10xCounts(de_soup_counts_dn, out, barcodes = ss(colnames(out),'_',4), 
+                   version = '3', overwrite = TRUE)
   }
 }
 
@@ -107,7 +116,8 @@ for(sample in names(STARsolo_raw_fn)){
 ## https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02547-0
 ## https://github.com/powellgenomicslab/DropletQC
 STARsolo_fn = STARsoloDIR %>% 
-  list.dirs(full.names = T,recursive = T) %>% str_subset('GeneFull$')
+  list.dirs(full.names = T,recursive = T) %>% str_subset('GeneFull$') %>%
+  str_subset('/\\.', negate = TRUE)
 names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Solo.out)",2)
 
 ## create filenames for nuclear fraction estimate tables
@@ -152,11 +162,13 @@ for (sample in names(STARsolo_fn)){
 # 4) Load the snRNA-seq with Seurat functions
 ## find folders w/ ambient RNA-corrected coutns outputs are
 STARsolo_fn = STARsoloDIR %>% 
-  list.dirs(full.names = T,recursive = T) %>% str_subset('SoupX_counts$')
+  list.dirs(full.names = T,recursive = T) %>% str_subset('SoupX_counts$')%>%
+  str_subset('/\\.', negate = TRUE)  
+
 names(STARsolo_fn) = ss(STARsolo_fn,"(STARsolo_out/)|(.Solo.out)",2)
 
 ## loops over each file name, runs the Read10X function
-dataList <- lapply(STARsolo_fn, Read10X, strip.suffix = TRUE)
+dataList <- lapply(STARsolo_fn, Read10X, strip.suffix = FALSE)
 
 ## Initialize the Seurat object with the raw (non-normalized data).
 ## loops over both each dataList object and the name of the snRNA data to 
@@ -164,6 +176,8 @@ dataList <- lapply(STARsolo_fn, Read10X, strip.suffix = TRUE)
 objList <- mapply(CreateSeuratObject, min.cells = 3, min.features = 200,
                   counts = dataList, project = names(dataList))
 
+## this file is really big. don't need anymore
+rm(dataList); gc() 
 
 ###################################
 # 5) compute QC metrics per sample
@@ -220,8 +234,9 @@ objList = lapply(objList, RunPCA, verbose = FALSE)
 
 ####################################
 # 7) save objects and write to file
+dir.create(here('data/raw_data/Seurat_objects'),showWarnings = F)
 save_fn = here('data/raw_data/Seurat_objects', 
-                 paste0('STARsolo_SoupX_rawCounts_',names(dataList), '.rds'))
+                 paste0('STARsolo_SoupX_rawCounts_',names(STARsolo_fn), '.rds'))
 mapply(saveRDS, object = objList, file = save_fn)
 
 
