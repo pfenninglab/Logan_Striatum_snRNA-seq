@@ -8,19 +8,19 @@ BU_DIR=/restricted/project/singlecell-rl/Logan_BU_Striatum_snRNA-seq
 mkdir -p $BU_DIR/data/raw_data
 
 # code
-rsync -Paq $LANEDIR/code $BU_DIR
+rsync -Pav $LANEDIR/code $BU_DIR
 
 # figures
-rsync -Paq $LANEDIR/figures $BU_DIR
+rsync -Pav $LANEDIR/figures $BU_DIR
 
 # products
-rsync -Paq $LANEDIR/products $BU_DIR
+rsync -Pav $LANEDIR/products $BU_DIR
 
 # tidy_data
-rsync -Paq $LANEDIR/data/tidy_data $BU_DIR/data
+rsync -Pav $LANEDIR/data/tidy_data $BU_DIR/data
 
 # raw_data
-rsync -Paq $LANEDIR/data/raw_data/STARsolo_out $BU_DIR/data/raw_data
+rsync -Pav $LANEDIR/data/raw_data/STARsolo_out $BU_DIR/data/raw_data
 
 
 ###########################################
@@ -33,4 +33,3 @@ rsync -Paun $BU_DIR/figures $LANEDIR
 rsync -Pau $BU_DIR/data $LANEDIR
 rsync -Pau $BU_DIR/code $LANEDIR
 rsync -Pau $BU_DIR/figures $LANEDIR
-
