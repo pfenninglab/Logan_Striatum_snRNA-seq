@@ -1,6 +1,7 @@
 ## exclude all data directories
 
 logs/
+.ipynb_checkpoints/
 
 *.bam
 *.arrow
