@@ -80,17 +80,38 @@ dev.off()
 
 
 ## MSN compartments
-markMSN22 = c('STXBP6', 'SEMA3E', 'EPHA4', 'GDA') # Matrix markers
+markMSN4 = c('STXBP6', 'SEMA3E', 'EPHA4', 'GDA') # Matrix markers
 markMSN5 =c( 'PDYN', 'OPRM1', 'KHDRBS3', 'KCNIP1') # Striosome markers
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.MSNcompMarkers.pdf'), width = 7.25, height = 3)
-p5 = plot_density(obj_merged, slot = 'data', features = markMSN22,  reduction = "umap") 
+p5 = plot_density(obj_merged, slot = 'data', features = markMSN4,  reduction = "umap") 
 p6 = plot_density(obj_merged, slot = 'data', features = markMSN5,  reduction = "umap", pal = 'inferno')
 p5 + plot_layout(nrow = 1) & theme_classic(base_size = 7) & 
   theme(plot.title = element_text(size = 8)) & theme(legend.position = 'bottom') 
 p6 + plot_layout(nrow = 1) & theme_classic(base_size = 7) & 
   theme(plot.title = element_text(size = 8)) & theme(legend.position = 'bottom') 
 dev.off()
+
+
+
+
+## Striatal interneuron markers, PMID: 30134177, Munoz-Manchado et al.
+markINT1 =c( 'LHX6', 'SST', 'NPY', 'CHAT', 'PTHLH','PVALB', 'TH','TRH') 
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.InterneuronMarkers.pdf'), width = 7.25, height = 3)
+p7 = plot_density(obj_merged, slot = 'data', features = markINT1,  reduction = "umap") 
+p7 + plot_layout(nrow = 2) & theme_classic(base_size = 7) & 
+  theme(plot.title = element_text(size = 8))
+
+# p8 = plot_density(obj_merged, slot = 'data', features = markINT2,  reduction = "umap") 
+# p8 + plot_layout(nrow = 2) & theme_classic(base_size = 7) & 
+#   theme(plot.title = element_text(size = 8))
+dev.off()
+
+
+
+
+
+
 
 
 ## plot the opioid receptors and ligands
@@ -156,14 +177,14 @@ dev.off()
 
 ## plot by patch/matrix markers
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNcompMarkers.pdf'), width = 7.25, height = 5)
-VlnPlot(obj_msn, features =c(markMSN22, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
+VlnPlot(obj_msn, features =c(markMSN4, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
         group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank())
 dev.off()
 
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNcompMarkersByDxSUD.pdf'), width = 7.25, height = 5)
-VlnPlot(obj_msn, features =c(markMSN22, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
+VlnPlot(obj_msn, features =c(markMSN4, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
         group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank())
 dev.off()
