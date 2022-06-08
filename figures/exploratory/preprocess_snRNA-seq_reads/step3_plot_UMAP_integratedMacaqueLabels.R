@@ -5,6 +5,7 @@ library(tidyverse)
 library(RColorBrewer)
 library(rcartocolor)
 library(ggpubr)
+
 ## main Seurat package snRNA-seq pacakges
 library(Seurat)
 library(SeuratDisk)
@@ -38,37 +39,41 @@ obj_merged = here('data/tidy_data/Seurat_projects',
   LoadH5Seurat(assay = 'RNA') 
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident_rainbow.pdf'), width = 8, height = 10.5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident_rainbow.pdf'), width = 10.5, height = 8)
 Idents(obj_merged) = obj_merged$ID
 DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID', 
-        label.size = 3, pt.size = 2, ncol = 4, cols = rainbow(length(unique(obj_merged$ID))) ) +
+        label.size = 3, pt.size = 2, ncol = 6, cols = rainbow(length(unique(obj_merged$ID))) ) +
   theme(legend.position = 'none', 
         plot.background = element_rect(fill = 'black'),
         text = element_text(colour = "white"))
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident.pdf'), width = 8, height = 10.5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident.pdf'), width = 10.5, height = 8)
 Idents(obj_merged) = obj_merged$ID
 DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID', pt.size = 2,
-        label.size = 3, ncol = 4, cols = rep('black', length(unique(obj_merged$ID)))) +
+        label.size = 3, ncol = 6, cols = rep('black', length(unique(obj_merged$ID)))) +
   theme(legend.position = 'none')
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.clusters.pdf'), width = 8, height = 10.5)
-DimPlot(object = obj_merged, reduction = "umap", label.size = 3, ncol = 4, 
-        pt.size = 2, group.by = 'seurat_clusters',  split.by = 'ID') +
-  guides(color = guide_legend(nrow = 2, override.aes= list(size = 2)))+ 
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.clusters.pdf'), width = 10.5, height = 8)
+DimPlot(object = obj_merged, reduction = "umap", label.size = 3, ncol = 6, 
+        pt.size = 2, group.by = 'seurat_clusters',  split.by = 'ID',
+        cols = ArchR::paletteDiscrete(unique(obj_merged$seurat_clusters))) +
+  guides(color = guide_legend(nrow = 4, override.aes= list(size = 1)))+ 
   theme(legend.position = 'bottom', legend.spacing.x = unit(1.0, 'cm'))
 dev.off()
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels.pdf'), width = 8, height = 10.5)
-DimPlot(object = obj_merged, reduction = "umap",  split.by = 'ID', ncol = 4, 
+
+
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels.pdf'), width = 10.5, height = 8)
+DimPlot(object = obj_merged, reduction = "umap",  split.by = 'ID', ncol = 6, 
         pt.size = 2, group.by = 'celltype2', cols = c(subtypes_col, othertypes_col), label.size = 3) +
   guides(color = guide_legend(nrow = 3, override.aes= list(size = 2))) + 
   theme(legend.position = 'bottom')
 dev.off()
+
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels2.pdf'), width = 7.25, height = 4)
 DimPlot(object = obj_merged, reduction = "umap", group.by = 'celltype2', 
@@ -89,9 +94,9 @@ obj_msn = here('data/tidy_data/Seurat_projects',
 
 
 ## plot MSN subtypes by subjects
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.ident.pdf'), width = 8, height = 10.5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.ident.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", group.by = 'ID', label.size = 3, 
-          ncol = 4, split.by = 'ID', 
+          ncol = 6, split.by = 'ID', 
         cols = rep('black', length(unique(obj_merged$ID)))) +
   guides(color = guide_legend(nrow = 1, override.aes= list(size = 2))) + 
   theme(legend.position = 'none')
@@ -99,9 +104,9 @@ dev.off()
 
 
 ## plot MSN subtypes by subjects
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.ident_rainbow.pdf'), width = 8, height = 10.5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.ident_rainbow.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", group.by = 'ID', label.size = 3, 
-        ncol = 4, split.by = 'ID', 
+        ncol = 6, split.by = 'ID', 
         cols = rainbow(length(unique(obj_merged$ID))) ) +
   theme(legend.position = 'none', 
         plot.background = element_rect(fill = 'black'),
@@ -111,16 +116,17 @@ dev.off()
 
 
 ## plot MSN subtypes by Seurat clusters
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.clusters.pdf'), width = 8, height = 10.5)
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.clusters.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap",  group.by = 'seurat_clusters',
-        split.by = 'ID', label.size = 3, ncol = 4) +
-  guides(color = guide_legend(nrow = 1, override.aes= list(size = 2))) + 
+        split.by = 'ID', label.size = 3, ncol = 6,
+        cols = ArchR::paletteDiscrete(unique(obj_merged$seurat_clusters))) +
+  guides(color = guide_legend(nrow = 2, override.aes= list(size = 1))) + 
   theme(legend.position = 'bottom')
 dev.off()
 
 ## plot MSN subtypes by Macaque label transfer
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels.pdf'), width = 8, height = 10.5)
-DimPlot(object = obj_msn, reduction = "umap", split.by = 'ID', ncol = 4,
+pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels.pdf'), width = 10.5, height = 8)
+DimPlot(object = obj_msn, reduction = "umap", split.by = 'ID', ncol = 6,
         group.by = 'celltype2',  cols = subtypes_col, label.size = 3) +
   guides(color = guide_legend(nrow = 2, override.aes= list(size = 2))) + 
   theme(legend.position = 'bottom')
