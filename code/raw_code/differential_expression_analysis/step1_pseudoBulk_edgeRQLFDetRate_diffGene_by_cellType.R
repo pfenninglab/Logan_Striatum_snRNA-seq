@@ -52,11 +52,11 @@ saveHDF5SummarizedExperiment(sce, h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_Se
 sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 
 ## store cell type IDs (k.ids) and sample IDs (s.ids)
-nk <- length(kids <- rlang::set_names(levels(factor(sce$celltype2))))
+nk <- length(kids <- rlang::set_names(levels(factor(sce$celltype3))))
 ns <- length(sids <- rlang::set_names(levels(factor(sce$orig.ident))))
 
 ## aggregate by cluster-sample to create pseudo-bulk count matrix
-groups <- colData(sce)[, c("celltype2", "orig.ident")]
+groups <- colData(sce)[, c("celltype3", "orig.ident")]
 pb <- aggregate.Matrix(t(counts(sce)), groupings = groups, fun = "sum") 
 
 ## split by cluster, transform & rename columns
@@ -112,11 +112,11 @@ res <- lapply(kids[!kids %in% exclude_celltypes ], function(k) {
 ####################################################################
 ## 4) save the output of edgeRQLFDetRate differential state analyses
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_byCelltype2_N22.rds')
+save_res_fn = here(rdasDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.rds')
 saveRDS(res, save_res_fn)
 
 tablesDir =file.path(DATADIR, 'tables'); dir.create(tablesDir, showWarnings = F)
-save_res_fn2 = here(tablesDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_byCelltype2_N22.xlsx')
+save_res_fn2 = here(tablesDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.xlsx')
 names(res) = make.names(names(res))
 res %>% lapply(function(x) x %>% arrange(p_adj)) %>% writexl::write_xlsx(save_res_fn2)
 
