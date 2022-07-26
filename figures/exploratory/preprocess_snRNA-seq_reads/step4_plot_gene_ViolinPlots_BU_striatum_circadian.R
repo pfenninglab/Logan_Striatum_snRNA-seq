@@ -39,11 +39,11 @@ names(othertypes_col) = othertypes
 obj_merged = here('data/tidy_data/Seurat_projects', 
                   "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype2 %in% subtypes, 'MSN', 'Other'))
+obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype3 %in% subtypes, 'MSN', 'Other'))
 obj_merged = obj_merged[, !obj_merged$celltype1 %in% c('UNK_MSN', 'UNK_ALL')]
 obj_merged$group = relevel(factor(obj_merged$group), ref = 'Other')
 obj_merged$celltype1 = factor(obj_merged$celltype1 , c('MSNs', othertypes))
-obj_merged$celltype2 = factor(obj_merged$celltype2 , c(subtypes, othertypes))
+obj_merged$celltype3 = factor(obj_merged$celltype3 , c(subtypes, othertypes))
 Idents(obj_merged) = 'celltype1'
 
 ## plot the opioid receptors and ligands
@@ -75,9 +75,9 @@ dev.off()
 obj_msn = here('data/tidy_data/Seurat_projects', 
                "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_msn$celltype2 = factor(obj_msn$celltype2 , c(subtypes, othertypes))
-obj_msn = obj_msn[, !obj_msn$celltype2 %in% c('UNK_MSN', 'UNK_ALL')]
-Idents(obj_msn) = 'celltype2'
+obj_msn$celltype3 = factor(obj_msn$celltype3 , c(subtypes, othertypes))
+obj_msn = obj_msn[, !obj_msn$celltype3 %in% c('UNK_MSN', 'UNK_ALL')]
+Idents(obj_msn) = 'celltype3'
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.circadian.pdf'), width = 9, height = 12)
 VlnPlot(obj_msn, features =c(markCircadian), slot = "data", cols = subtypes_col, pt.size = 0) & 

@@ -69,15 +69,15 @@ dev.off()
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_merged, reduction = "umap",  split.by = 'ID', ncol = 6, 
-        pt.size = 2, group.by = 'celltype2', cols = c(subtypes_col, othertypes_col), label.size = 3) +
+        pt.size = 2, group.by = 'celltype3', cols = c(subtypes_col, othertypes_col), label.size = 3) +
   guides(color = guide_legend(nrow = 3, override.aes= list(size = 2))) + 
   theme(legend.position = 'bottom')
 dev.off()
 
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels2.pdf'), width = 7.25, height = 4)
-DimPlot(object = obj_merged, reduction = "umap", group.by = 'celltype2', 
-        shape.by = 'celltype2', pt.size = .75, label.size = 3) +
+DimPlot(object = obj_merged, reduction = "umap", group.by = 'celltype3', 
+        shape.by = 'celltype3', pt.size = .75, label.size = 3) +
   scale_colour_manual(name = "Cell type", labels = names(c(subtypes_col, othertypes_col)),
                       values = c(subtypes_col, othertypes_col)) +   
   scale_shape_manual(name = "Cell type", labels = names(c(subtypes_col, othertypes_col)),
@@ -127,15 +127,15 @@ dev.off()
 ## plot MSN subtypes by Macaque label transfer
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", split.by = 'ID', ncol = 6,
-        group.by = 'celltype2',  cols = subtypes_col, label.size = 3) +
+        group.by = 'celltype3',  cols = subtypes_col, label.size = 3) +
   guides(color = guide_legend(nrow = 2, override.aes= list(size = 2))) + 
   theme(legend.position = 'bottom')
 dev.off()
 
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels2.pdf'), width = 7.25, height = 4)
-DimPlot(object = obj_msn, reduction = "umap", group.by = 'celltype2', 
-        shape.by = 'celltype2', pt.size = 1, label.size = 3) +
+DimPlot(object = obj_msn, reduction = "umap", group.by = 'celltype3', 
+        shape.by = 'celltype3', pt.size = 1, label.size = 3) +
   scale_colour_manual(name = "Cell type", labels = names(c(subtypes_col)),
                       values = c(subtypes_col)) +   
   guides(color = guide_legend(ncol = 1, override.aes= list(size = 2))) + 
@@ -152,7 +152,7 @@ p1 = obj_merged[[]] %>% ggplot(aes(x = ID, fill = celltype1)) +
   scale_fill_manual(values = c('MSNs' = 'black', subtypes_col, othertypes_col), name = 'Cell type') +
   theme_classic() + xlab('Sample')+ coord_flip() + 
   facet_grid(DSM.IV.OUD~., scales = 'free_y', space = 'free_y')
-p2 =  obj_msn[[]] %>% ggplot(aes(x = ID, fill = celltype2)) + 
+p2 =  obj_msn[[]] %>% ggplot(aes(x = ID, fill = celltype3)) + 
   geom_bar(stat = 'count', position = 'fill') + 
   scale_fill_manual(values = c('MSNs' = 'black', subtypes_col, othertypes_col), name = 'Cell type') + 
   theme_classic() + ylab('Proportion of cells') + 

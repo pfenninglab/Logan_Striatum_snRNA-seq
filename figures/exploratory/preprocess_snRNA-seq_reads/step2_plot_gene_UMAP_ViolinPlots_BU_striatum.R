@@ -39,10 +39,10 @@ names(othertypes_col) = othertypes
 obj_merged = here('data/tidy_data/Seurat_projects', 
                   "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype2 %in% subtypes, 'MSN', 'Other'))
+obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype3 %in% subtypes, 'MSN', 'Other'))
 obj_merged$group = relevel(factor(obj_merged$group), ref = 'Other')
 obj_merged$celltype1 = factor(obj_merged$celltype1 , c('MSNs', othertypes))
-obj_merged$celltype2 = factor(obj_merged$celltype2 , c(subtypes, othertypes))
+obj_merged$celltype3 = factor(obj_merged$celltype3 , c(subtypes, othertypes))
 Idents(obj_merged) = 'celltype1'
 
 ## Neuron vs. Glia markers
@@ -144,19 +144,19 @@ dev.off()
 obj_msn = here('data/tidy_data/Seurat_projects', 
                "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_msn$celltype2 = factor(obj_msn$celltype2 , c(subtypes, othertypes))
-Idents(obj_msn) = 'celltype2'
+obj_msn$celltype3 = factor(obj_msn$celltype3 , c(subtypes, othertypes))
+Idents(obj_msn) = 'celltype3'
 
 ## plot by direct and indirect MSN markers, 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNclusterMarkers.pdf'), width = 7.25, height = 2.5)
 VlnPlot(obj_msn, features =c(markMSN1), slot = "data", ncol = 3, pt.size = 0, 
-        group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
+        group.by = 'celltype3', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
 VlnPlot(obj_msn, features =c(markMSN2), slot = "data", ncol = 3, pt.size = 0, 
-        group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
+        group.by = 'celltype3', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
 VlnPlot(obj_msn, features =c(markMSN3), slot = "data", ncol = 3, pt.size = 0,
-        group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
+        group.by = 'celltype3', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
 dev.off()
 
@@ -164,13 +164,13 @@ dev.off()
 ## plot by direct and indirect MSN markers, stratify by Dx
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNclusterMarkersByDxSUD.pdf'), width = 7.25, height = 2.5)
 VlnPlot(obj_msn, features =c(markMSN1), slot = "data", ncol = 3, pt.size = 0, 
-        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+        group.by = 'celltype3', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
 VlnPlot(obj_msn, features =c(markMSN2), slot = "data", ncol = 3, pt.size = 0, 
-        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+        group.by = 'celltype3', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
 VlnPlot(obj_msn, features =c(markMSN3), slot = "data", ncol = 3, pt.size = 0,
-        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+        group.by = 'celltype3', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank()) 
 dev.off()
 
@@ -178,14 +178,14 @@ dev.off()
 ## plot by patch/matrix markers
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNcompMarkers.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_msn, features =c(markMSN4, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
-        group.by = 'celltype2', cols = c(subtypes_col, othertypes_col)) & 
+        group.by = 'celltype3', cols = c(subtypes_col, othertypes_col)) & 
   theme(legend.position = 'none', axis.title=element_blank())
 dev.off()
 
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.MSNcompMarkersByDxSUD.pdf'), width = 7.25, height = 5)
 VlnPlot(obj_msn, features =c(markMSN4, markMSN5), slot = "data", ncol = 4, pt.size = 0, 
-        group.by = 'celltype2', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
+        group.by = 'celltype3', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank())
 dev.off()
 

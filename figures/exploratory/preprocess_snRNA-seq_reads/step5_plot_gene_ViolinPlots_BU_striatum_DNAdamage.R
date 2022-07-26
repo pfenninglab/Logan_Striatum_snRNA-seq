@@ -61,9 +61,9 @@ dev.off()
 obj_msn = here('data/tidy_data/Seurat_projects', 
                "BU_Run1_Striatum_subsetMSN_SCT_SeuratObj_N4.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_msn$celltype2 = factor(obj_msn$celltype2 , c(subtypes, othertypes))
-obj_msn = obj_msn[, !obj_msn$celltype2 %in% c('UNK_MSN', 'UNK_ALL')]
-Idents(obj_msn) = 'celltype2'
+obj_msn$celltype3 = factor(obj_msn$celltype3 , c(subtypes, othertypes))
+obj_msn = obj_msn[, !obj_msn$celltype3 %in% c('UNK_MSN', 'UNK_ALL')]
+Idents(obj_msn) = 'celltype3'
 
 pdf(here(PLOTDIR, 'plots', 'BU_Run1_Striatum_Viol_msn.DNAdamage.pdf'), width = 9, height = 12)
 VlnPlot(obj_msn, features =c(markDNAdamage), slot = "data", cols = subtypes_col, pt.size = 0) & 
