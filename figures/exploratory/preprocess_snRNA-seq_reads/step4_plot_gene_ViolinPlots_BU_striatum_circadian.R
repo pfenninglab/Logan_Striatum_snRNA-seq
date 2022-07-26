@@ -39,7 +39,7 @@ names(othertypes_col) = othertypes
 
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
+                  "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype3 %in% subtypes, 'MSN', 'Other'))
 obj_merged = obj_merged[, !obj_merged$celltype1 %in% c('UNK_MSN', 'UNK_ALL')]
