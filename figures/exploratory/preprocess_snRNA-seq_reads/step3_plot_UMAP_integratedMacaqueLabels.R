@@ -31,7 +31,6 @@ othertypes_col = carto_pal(length(othertypes), "Vivid")
 names(othertypes_col) = othertypes
 
 
-
 ##################################################
 # 1) load in full dataset cell type labels for plot
 
@@ -39,7 +38,7 @@ names(othertypes_col) = othertypes
 obj_merged = here('data/tidy_data/Seurat_projects', 
    "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA') 
-
+sum(is.na(obj_merged$celltype3))
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident_rainbow.pdf'), width = 10.5, height = 8)
 Idents(obj_merged) = obj_merged$ID
@@ -83,7 +82,7 @@ DimPlot(object = obj_merged, reduction = "umap", group.by = 'celltype3',
   scale_colour_manual(name = "Cell type", labels = names(c(subtypes_col, othertypes_col)),
                       values = c(subtypes_col, othertypes_col)) +   
   scale_shape_manual(name = "Cell type", labels = names(c(subtypes_col, othertypes_col)),
-                     values = c(rep(17, 6), rep(19, 8)))
+                     values = c(rep(17, length(subtypes_col)), rep(19, length(othertypes_col))))
 dev.off()
 
 
@@ -91,7 +90,7 @@ dev.off()
 # 2) load in MSN sub type labels plot
 ## read in Logan BU snRNA dataset to label transfer
 obj_msn = here('data/tidy_data/Seurat_projects', 
-                    "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
+                    "BU_OUD_Striatum_refined_msn_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 
 
@@ -122,7 +121,7 @@ pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.clusters.pdf'), width = 10.
 DimPlot(object = obj_msn, reduction = "umap",  group.by = 'seurat_clusters',
         split.by = 'ID', label.size = 3, ncol = 6,
         cols = ArchR::paletteDiscrete(unique(obj_merged$seurat_clusters))) +
-  guides(color = guide_legend(nrow = 2, override.aes= list(size = 1))) + 
+  guides(color = guide_legend(nrow = 1, override.aes= list(size = 1))) + 
   theme(legend.position = 'bottom')
 dev.off()
 
@@ -130,7 +129,7 @@ dev.off()
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", split.by = 'ID', ncol = 6,
         group.by = 'celltype3',  cols = subtypes_col, label.size = 3) +
-  guides(color = guide_legend(nrow = 2, override.aes= list(size = 2))) + 
+  guides(color = guide_legend(nrow = 1, override.aes= list(size = 2))) + 
   theme(legend.position = 'bottom')
 dev.off()
 
@@ -151,12 +150,12 @@ pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_CellTypeBarChart.perSample.pdf'),
     width = 7.25, height = 4, onefile = F)
 p1 = obj_merged[[]] %>% ggplot(aes(x = ID, fill = celltype1)) + 
   geom_bar(stat = 'count', position = 'fill')  + ylab('Proportion of cells') + 
-  scale_fill_manual(values = c('MSNs' = 'black', subtypes_col, othertypes_col), name = 'Cell type') +
+  scale_fill_manual(values = c('MSNs' = 'black', 'Interneurons' = 'red', subtypes_col, othertypes_col), name = 'Cell type') +
   theme_classic() + xlab('Sample')+ coord_flip() + 
   facet_grid(DSM.IV.OUD~., scales = 'free_y', space = 'free_y')
 p2 =  obj_msn[[]] %>% ggplot(aes(x = ID, fill = celltype3)) + 
   geom_bar(stat = 'count', position = 'fill') + 
-  scale_fill_manual(values = c('MSNs' = 'black', subtypes_col, othertypes_col), name = 'Cell type') + 
+  scale_fill_manual(values = c('MSNs' = 'black', 'Interneurons' = 'red',subtypes_col, othertypes_col), name = 'Cell type') + 
   theme_classic() + ylab('Proportion of cells') + 
   xlab('Sample')+ coord_flip() + 
   facet_grid(DSM.IV.OUD~., scales = 'free_y', space = 'free_y')
