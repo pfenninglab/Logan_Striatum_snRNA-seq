@@ -11,7 +11,7 @@ library(Seurat)
 library(SeuratDisk)
 library(future)
 
-## gene expression density plots
+## gene expression heatmap plots
 library(Nebulosa)
 
 ss <- function(x, pattern, slot = 1, ...) { 
@@ -57,7 +57,7 @@ dev.off()
 
 ## load in the filtered Seurat object
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% LoadH5Seurat(assay = 'RNA') 
+                  "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% LoadH5Seurat() 
 
 ## plot number of estimated miQC compromised cells
 qc_df2 = obj_merged[[]]

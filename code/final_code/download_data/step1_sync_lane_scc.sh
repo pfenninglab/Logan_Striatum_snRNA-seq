@@ -7,19 +7,15 @@ BU_DIR=/restricted/projectnb/singlecell-rl/Logan_BU_Striatum_snRNA-seq
 
 mkdir -p $BU_DIR/data/raw_data
 
+rsync -Pa $LANEDIR/code $BU_DIR
 
-rsync -Paun $LANEDIR/code $BU_DIR
+rsync -Pa $LANEDIR/figures $BU_DIR
 
-rsync -Pau $LANEDIR/code $BU_DIR
-
-rsync -Paun $LANEDIR/data/tidy_data $BU_DIR/data
-
-rsync -Pau $LANEDIR/data/tidy_data $BU_DIR/data
-
+rsync -Pa $LANEDIR/data/tidy_data $BU_DIR/data
 
 ###########################################
 ######## transfer from SCC to Lane ########
-rsync -Paun $BU_DIR/* $LANEDIR
+rsync -Pan $BU_DIR/* $LANEDIR
 
-rsync -Pau $BU_DIR/* $LANEDIR
+rsync -Pa $BU_DIR/* $LANEDIR
 

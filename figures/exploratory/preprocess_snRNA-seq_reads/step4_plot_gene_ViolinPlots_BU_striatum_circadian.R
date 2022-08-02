@@ -22,16 +22,14 @@ PLOTDIR='figures/exploratory/preprocess_snRNA-seq_reads'
 
 ###################################
 # 0) pre-set colors and cell types 
-subtypes = c('D1-Matrix', 'D2-Matrix',  'D1-Striosome', 'D2-Striosome','D1/D2-Hybrid')
-subtypes_col = c('#1f78b4', '#a6cee3', '#e31a1c', '#fb9a99',  '#6a3d9a')
+subtypes = c('D1-Matrix', 'D2-Matrix',  'D1-Striosome', 'D2-Striosome','D1/D2-Hybrid', 'UNK_MSN')
+subtypes_col = c('#1f78b4', '#a6cee3', '#e31a1c', '#fb9a99',  '#6a3d9a', '#b15928')
 names(subtypes_col) = subtypes
 
-othertypes = c('Int-CCK', 'Int-PTHLH', 'Int-SST', 'Int-TH', 
-               'Astrocytes', 'Endothelial', 'Microglia', 
-               'Mural', 'Oligos', 'Oligos_Pre')
+othertypes = c('Interneurons', 'Astrocytes', 'Endothelial', 'Microglia', 
+               'Mural/Fibroblast', 'Oligos', 'Oligos_Pre', 'UNK_ALL')
 othertypes_col = carto_pal(length(othertypes), "Vivid")
 names(othertypes_col) = othertypes
-
 
 
 ##################################################
@@ -39,13 +37,13 @@ names(othertypes_col) = othertypes
 
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
+                  "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype3 %in% subtypes, 'MSN', 'Other'))
+obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype2 %in% subtypes, 'MSN', 'Other'))
 obj_merged = obj_merged[, !obj_merged$celltype1 %in% c('UNK_MSN', 'UNK_ALL')]
 obj_merged$group = relevel(factor(obj_merged$group), ref = 'Other')
 obj_merged$celltype1 = factor(obj_merged$celltype1 , c('MSNs', othertypes))
-obj_merged$celltype3 = factor(obj_merged$celltype3 , c(subtypes, othertypes))
+obj_merged$celltype2 = factor(obj_merged$celltype2 , c(subtypes, othertypes))
 Idents(obj_merged) = 'celltype1'
 
 ## plot the opioid receptors and ligands
@@ -77,9 +75,9 @@ dev.off()
 obj_msn = here('data/tidy_data/Seurat_projects', 
                "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
-obj_msn$celltype3 = factor(obj_msn$celltype3 , c(subtypes, othertypes))
-obj_msn = obj_msn[, !obj_msn$celltype3 %in% c('UNK_MSN', 'UNK_ALL')]
-Idents(obj_msn) = 'celltype3'
+obj_msn$celltype2 = factor(obj_msn$celltype2 , c(subtypes, othertypes))
+obj_msn = obj_msn[, !obj_msn$celltype2 %in% c('UNK_MSN', 'UNK_ALL')]
+Idents(obj_msn) = 'celltype2'
 
 pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.circadian.pdf'), width = 9, height = 12)
 VlnPlot(obj_msn, features =c(markCircadian), slot = "data", cols = subtypes_col, pt.size = 0) & 
