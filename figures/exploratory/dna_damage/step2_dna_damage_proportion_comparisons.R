@@ -81,19 +81,25 @@ dam_per_cellxSample = celltype_df %>%
          undamaged = sum(DNA_dam_class =='undamaged'), 
          DNA_dam_prop = damaged / numCell) %>% 
   ungroup() %>% distinct(Case, Region, celltype4, .keep_all = T) %>% 
+  group_by(celltype4) %>% mutate(tmp = mean(DNA_dam_val)) %>% 
+  ungroup() %>% arrange(desc(DNA_dam_val)) %>%   
+  mutate(celltype4 = factor(celltype4, unique(celltype4)))
+
+## for plotting later, get average proportion of cell types
+dam_per_cellxSample2 = dam_per_cellxSample %>% 
+  mutate(damaged= damaged / numCell * 100, 
+         undamaged= undamaged / numCell * 100) %>% 
+  group_by(DSM.IV.OUD, celltype4) %>% 
+  summarise_if(is.numeric, mean) %>% 
+  ungroup() %>% pivot_longer(cols = c('damaged', 'undamaged'))
+
+## filter out cell types without any damaged cells by AUCell cutoff
+dam_per_cellxSample = dam_per_cellxSample  %>% 
   ## z-normalize to rescale these numeric values for regression
   mutate_at(all_of(c('Age', 'PMI', 'RIN', 'numCell')), 
             ~ (. - mean(.))/sd(.)) %>% 
   # arrange(!grepl('D1', celltype4), !grepl('D2', celltype4), 
   #         !grepl('Int', celltype4), celltype4) %>% 
-  group_by(celltype4) %>% mutate(tmp = mean(DNA_dam_val)) %>% 
-  ungroup() %>% arrange(desc(DNA_dam_val)) %>%   
-  mutate(celltype4 = factor(celltype4, unique(celltype4)))
-
-dam_per_cellxSample2=dam_per_cellxSample %>%  pivot_longer(cols = c('damaged', 'undamaged'))
-
-## filter out cell types without any damaged cells by AUCell cutoff
-dam_per_cellxSample = dam_per_cellxSample %>% 
   group_by(celltype4, Region) %>% 
   mutate(toKeep = mean(DNA_dam_prop[DSM.IV.OUD=='OUD']) != 
                          mean(DNA_dam_prop[DSM.IV.OUD=='CTL'])) %>% 
@@ -120,7 +126,7 @@ ggplot(dam_per_cellxSample2,
   # geom_point(pch = 21, alpha = 0.5, position = position_jitter(width = 0.3)) + 
   scale_fill_manual(values =c('undamaged' = 'gray', 'damaged' = 'black')) +
   facet_wrap(~celltype4, scale = 'fixed', nrow = 1)+ 
-  coord_cartesian(ylim = c(0.85, 1))+
+  coord_cartesian(ylim = c(0.80, 1))+
   theme_bw(base_size = 5) +
   ylab('DNA Damaged Proportion') + xlab('')+
   theme(legend.position = 'none', legend.title = element_blank(),
