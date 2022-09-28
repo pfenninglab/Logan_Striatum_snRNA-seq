@@ -11,7 +11,7 @@ The code used to make to this run is at: /home/qsu1/sc_age/scripts/22_07_07_bado
 
 #### File columns
 
-* "Combined_stage" is the name of the damage signature. It is a numeric value corresponding to the class labels undamaged and damaged.
+* "Combined_stage" is the name of the damage signature. It is a numeric value corresponding to the class labels undamaged and damaged from the signature at /home/qsu1/sc_age/data/signatures/factor_gh2ax_plus_vs_gh2ax_minus_l2fc1_signature.csv
 * numeric values written to 22_07_07_BU_OUD_Striatum_filtered_SCT_SeuratObj_N22_g_signature_assignments_master_auc_values.csv
 * classifications written to 22_07_07_BU_OUD_Striatum_filtered_SCT_SeuratObj_N22_g_signature_assignments_master_damage_classification.csv
 * all other columns of these csv files came from the metadata of teh original file.
