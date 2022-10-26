@@ -50,7 +50,7 @@ names(typecolors) = make.names(names(typecolors))
 
 ###################################################
 ## 1) read in the refined cell type metadata 
-save_meta_fn = here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_SeuratObj_N22.metadata.rds')
+save_meta_fn = here(DATADIR, 'rdas', 'OUD_Striatum_refined_all_SeuratObj_N22.metadata.rds')
 meta = readRDS(file=save_meta_fn) %>% rownames_to_column('cellBarcode') 
 table(meta$celltype3)
 

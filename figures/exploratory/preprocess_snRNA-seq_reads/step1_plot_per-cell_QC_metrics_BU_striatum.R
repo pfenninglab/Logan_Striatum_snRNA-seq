@@ -26,7 +26,7 @@ PLOTDIR='figures/exploratory/preprocess_snRNA-seq_reads'
 
 ## load the unfiltered QC table
 qc_df = here('data/tidy_data/tables',
-             paste0("BU_OUD_Striatum_unfiltered_QC_table_N22.txt.gz")) %>%
+             paste0("OUD_Striatum_unfiltered_QC_table_N22.txt.gz")) %>%
   read_tsv(show_col_types = FALSE) %>%
   mutate(toKeep = case_when(
     scds.keep == 'doublet' ~ 'doublet', 
@@ -36,7 +36,7 @@ qc_df = here('data/tidy_data/tables',
     toKeep = factor(toKeep, c('doublet', 'empty droplet', 'high mito rate', 'keep')))
 
 ## plot number of estimated miQC compromised cells
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_QC_all.perSampleQC.pdf'), 
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_QC_all.perSampleQC.pdf'), 
     width = 7.25, height = 4, onefile = F)
 p1 = qc_df %>% ggplot(aes(x = ID, fill = toKeep)) + 
   geom_bar(stat = 'count')  + ylab('Number of cells') + 
@@ -57,11 +57,11 @@ dev.off()
 
 ## load in the filtered Seurat object
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% LoadH5Seurat() 
+                  "OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% LoadH5Seurat() 
 
 ## plot number of estimated miQC compromised cells
 qc_df2 = obj_merged[[]]
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_QC_all.qcViolinPlots.pdf'), 
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_QC_all.qcViolinPlots.pdf'), 
     width = 7.25, height = 4, onefile = F)
 p1 = ggviolin(qc_df2, x = "ID", y = "percent.mt", add = "boxplot",
               palette = c("gray", "red"), fill = 'DSM.IV.OUD') + 
@@ -85,7 +85,7 @@ DefaultAssay(obj_merged) = 'RNA'
 
 ## Per Cell type QC values
 QC_features = c('percent.mt',  'scds.hybrid_score', 'dropletQC.nucFrac', 'nLogUMI')
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_QC_all.perCellQC.pdf'), width = 7.25, height = 4)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_QC_all.perCellQC.pdf'), width = 7.25, height = 4)
 FeaturePlot(object = obj_merged, reduction = "umap", feature = QC_features)
 plot_density(obj_merged, features = QC_features,  reduction = "umap") +
   plot_layout(nrow = 2, guides = "auto") &

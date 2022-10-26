@@ -61,7 +61,7 @@ dnaDam_class = here('data/tidy_data/Seurat_projects/AUCell',
 #####################################
 # 2) load in cell type annotations 
 obj = here('data/tidy_data/Seurat_projects', 
-           "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
+           "OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 
 ## ordered cell types
@@ -79,7 +79,7 @@ celltype_df = obj[[]] %>% dplyr::select(-contains('integrated_snn_res')) %>%
 celltype_df = cbind(celltype_df, 'DNA_dam_val' = dnaDam_val[rownames(celltype_df),]) %>% 
   mutate(DNA_dam_class = ifelse(rownames(celltype_df) %in% dnaDam_class, 'damaged', 'undamaged')) %>% filter(!is.na(DNA_dam_val))
   
-save_file = here(PLOTDIR, 'rdas', 'BU_OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam.rds')
+save_file = here(PLOTDIR, 'rdas', 'OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam.rds')
 celltype_df %>% saveRDS(save_file)
 
 cutoff = (celltype_df %>% dplyr::filter(DNA_dam_class == 'damaged') %>% 
@@ -112,7 +112,7 @@ modBySample2 = glm(DNA_dam_prop ~ DSM.IV.OUD+ Age + Sex + PMI + RIN + numCell,
 summary(modBySample2) 
 
 ## plots
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamVal.perSample.pdf'), width = .75, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamVal.perSample.pdf'), width = .75, height = 1)
 ggplot(dam_per_sample, aes(x =DSM.IV.OUD, y = DNA_dam_val)) +
   geom_boxplot(outlier.shape = NA) + 
   geom_point(pch = 21, alpha = 0.9, aes(x =DSM.IV.OUD, y = DNA_dam_val, fill = Sex)) + 
@@ -212,7 +212,7 @@ modBySampleAndCell = lmer(DNA_dam_val ~ celltype4 + celltype4:DSM.IV.OUD+ Age + 
 modBySampleAndCell %>% as.data.frame() %>% relocate('p.value', .after = 'term')
 
 ## plots
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamVal.perSampleByCell.pdf'), width = 4.5, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamVal.perSampleByCell.pdf'), width = 4.5, height = 1)
 ggplot(dam_per_cellxSample, 
        aes(x =DSM.IV.OUD, y = DNA_dam_val, fill = DSM.IV.OUD)) +
   geom_violin(size = .25) + geom_boxplot(width = 0.4, size = .25, outlier.shape = NA) + 
@@ -232,5 +232,5 @@ dev.off()
 ###########################
 # 5) export stats to table 
 list('DNA_dam_score_by_sample' = summary(modBySample) %>% tidy(), 
-     'DNA_dam_score_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'BU_OUD_Striatum_dnaDamVal.perSampleByCell.xlsx'))
+     'DNA_dam_score_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamVal.perSampleByCell.xlsx'))
 

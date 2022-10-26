@@ -37,7 +37,7 @@ names(othertypes_col) = othertypes
 
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
+                  "OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 obj_merged[['group']] = with(obj_merged[[]], ifelse(celltype3 %in% subtypes, 'MSN', 'Other'))
 obj_merged = obj_merged[, !obj_merged$celltype1 %in% c('UNK_MSN', 'UNK_ALL')]
@@ -53,7 +53,7 @@ markCircadian = c('CLOCK', 'ARNTL', 'PER1', 'PER2', 'PER3',
 obj_merged$celltype1 = factor(obj_merged$celltype1, levels = c('MSNs', othertypes)) 
 Idents(obj_merged) = 'celltype1'
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_all.circadian.pdf'), width = 7.25, height = 12)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_Viol_all.circadian.pdf'), width = 7.25, height = 12)
 VlnPlot(obj_merged, features =c(markCircadian), ncol = 3, slot = "data", pt.size = 0,
         fill.by = 'celltype1', group.by = 'celltype1', 
         cols = c('MSNs' = 'gray', othertypes_col), log = T) & 
@@ -61,7 +61,7 @@ VlnPlot(obj_merged, features =c(markCircadian), ncol = 3, slot = "data", pt.size
   coord_flip() 
 dev.off()
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_all.circadianByDxSUD.pdf'), width = 7.25, height = 12)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_Viol_all.circadianByDxSUD.pdf'), width = 7.25, height = 12)
 VlnPlot(obj_merged, features =c(markCircadian), slot = "data", pt.size = 0, 
         ncol = 3, group.by = 'celltype1', split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), 
         split.plot = TRUE, log = T) & 
@@ -73,19 +73,19 @@ dev.off()
 # 2) plot genes at MSN subtype level
 ## read in Logan BU snRNA dataset to label transfer
 obj_msn = here('data/tidy_data/Seurat_projects', 
-               "BU_OUD_Striatum_refined_msn_SeuratObj_N22.h5Seurat") %>% 
+               "OUD_Striatum_refined_msn_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 obj_msn$celltype3 = factor(obj_msn$celltype3 , c(subtypes, othertypes))
 obj_msn = obj_msn[, !obj_msn$celltype3 %in% c('UNK_MSN', 'UNK_ALL')]
 Idents(obj_msn) = 'celltype3'
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.circadian.pdf'), width = 9, height = 12)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_Viol_msn.circadian.pdf'), width = 9, height = 12)
 VlnPlot(obj_msn, features =c(markCircadian), slot = "data", cols = subtypes_col, pt.size = 0) & 
   theme(legend.position = 'none', axis.title=element_blank()) & coord_flip() 
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_Viol_msn.circadianByDxSUD.pdf'), width = 9, height = 12)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_Viol_msn.circadianByDxSUD.pdf'), width = 9, height = 12)
 VlnPlot(obj_msn, features =c(markCircadian), slot = "data", ncol = 3, pt.size = 0,
         split.by = 'DSM.IV.OUD', cols = c('gray', 'red'), split.plot = TRUE) & 
   theme(legend.position = 'none', axis.title=element_blank()) & coord_flip() 

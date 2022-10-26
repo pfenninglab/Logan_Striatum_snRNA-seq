@@ -28,7 +28,7 @@ dir.create(here(PLOTDIR, 'rdas'), showWarnings = F)
 # 1) load in the DNA damage estimates for glia from the general 
 # DNA dam vs. undamaged
 
-save_file = here(PLOTDIR, 'rdas', 'BU_OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam2.rds')
+save_file = here(PLOTDIR, 'rdas', 'OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam2.rds')
 celltype_df = readRDS(save_file)
 
 
@@ -46,7 +46,7 @@ modBySample = lm(DNA_dam_val_all ~ DSM.IV.OUD+ Age + Sex + PMI + RIN + numCell,
 summary(modBySample) 
 
 ## plots
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllVal.perSample.pdf'), width = .75, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllVal.perSample.pdf'), width = .75, height = 1)
 ggplot(dam_per_sample, aes(x =DSM.IV.OUD, y = DNA_dam_val_all)) +
   geom_boxplot(outlier.shape = NA, aes(fill = DSM.IV.OUD)) + 
   geom_line(alpha = 0.9, aes(x =DSM.IV.OUD, y = DNA_dam_val_all, group=Pair)) + 
@@ -148,7 +148,7 @@ modBySampleAndCell %>% as.data.frame() %>% relocate('p.value', .after = 'term')
 # 4) compute group average DNA damage ratios
 
 ## plots all the cells
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllVal.perSampleByCell.pdf'), width = 4.5, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllVal.perSampleByCell.pdf'), width = 4.5, height = 1)
 ggplot(dam_per_cellxSample, 
        aes(x =DSM.IV.OUD, y = DNA_dam_val_all)) +
   geom_violin(size = .25, aes(fill = DSM.IV.OUD)) + 
@@ -176,7 +176,7 @@ neur = dam_per_cellxSample %>% filter(!duplicated(celltype4)) %>%
   filter(!grepl('As|lia|lig|Mur', celltype4)) %>% pull(celltype4)
 
 ## plots the glia
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllVal.perSampleByGlia.pdf'), width = 2.5, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllVal.perSampleByGlia.pdf'), width = 2.5, height = 1)
 ggplot(dam_per_cellxSample %>% filter(celltype4 %in% glia), 
        aes(x =DSM.IV.OUD, y = DNA_dam_val_all)) +
   geom_violin(size = .25, aes(fill = DSM.IV.OUD)) + 
@@ -195,7 +195,7 @@ dev.off()
 
 
 ## plots the neuron
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllVal.perSampleByNeuron.pdf'), width = 2, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllVal.perSampleByNeuron.pdf'), width = 2, height = 1)
 ggplot(dam_per_cellxSample %>% filter(celltype4 %in% neur), 
        aes(x =DSM.IV.OUD, y = DNA_dam_val_all)) +
   geom_violin(size = .25, aes(fill = DSM.IV.OUD)) + 
@@ -215,5 +215,5 @@ dev.off()
 ###########################
 # 6) export stats to table 
 list('DNA_dam_score_by_sample' = summary(modBySample) %>% tidy(), 
-     'DNA_dam_score_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'BU_OUD_Striatum_dnaDamAllVal.perSampleByCell.xlsx'))
+     'DNA_dam_score_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamAllVal.perSampleByCell.xlsx'))
 

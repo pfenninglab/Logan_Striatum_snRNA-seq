@@ -18,7 +18,7 @@ PLOTDIR='figures/exploratory/differential_expression_analysis/plots'
 
 ## load in the DEG table
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_voom_limmaRes_bigModel_N22.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limmaRes_bigModel_N22.rds')
 res = readRDS(save_res_fn)
 
 alpha = 0.05
@@ -50,7 +50,7 @@ names(typecolors) = make.names(names(typecolors))
 # 1) make some upset plots
 
 ## neurons
-plot_fn = here(PLOTDIR, 'BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.upset.neuronDEG.pdf')
+plot_fn = here(PLOTDIR, 'OUD_Striatum_voomLimmaRes_N22.bycelltype3.upset.neuronDEG.pdf')
 pdf(plot_fn, height = 4, width = 8)
 df %>% filter(celltype %in% make.names(subtypes)) %>% 
   mutate(celltype = factor(celltype, names(typecolors))) %>% 
@@ -64,7 +64,7 @@ dev.off()
 
 
 ## glia
-plot_fn = here(PLOTDIR, 'BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.upset.gliaDEG.pdf')
+plot_fn = here(PLOTDIR, 'OUD_Striatum_voomLimmaRes_N22.bycelltype3.upset.gliaDEG.pdf')
 pdf(plot_fn, height = 4, width = 8)
 df %>% filter(celltype %in% make.names(othertypes)) %>% 
   filter(!grepl('Int', celltype) ) %>% 

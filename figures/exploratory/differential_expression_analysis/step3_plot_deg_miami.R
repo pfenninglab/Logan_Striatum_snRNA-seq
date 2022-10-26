@@ -41,7 +41,7 @@ names(typecolors) = make.names(names(typecolors))
 
 ## load in the DEG table
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_voom_limmaRes_bigModel_N22.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limmaRes_bigModel_N22.rds')
 res = readRDS(save_res_fn)
 
 alpha = 0.05
@@ -63,7 +63,7 @@ df_long = df %>% pivot_longer(cols = c('UpReg', 'DnReg'), names_to = 'Direction'
          celltype = factor(celltype, names(typecolors)))
 
 ## make the plot
-plot_fn = here(PLOTDIR, 'BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.pdf')
+plot_fn = here(PLOTDIR, 'OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.pdf')
 pdf(plot_fn, height = 4, width = 8)
 ggplot(df_long, aes(x = celltype, y = numDEG, fill = celltype))+
   geom_bar(stat = 'identity')+
@@ -76,13 +76,13 @@ ggplot(df_long, aes(x = celltype, y = numDEG, fill = celltype))+
 dev.off()
 
 ##alt save
-plot_fn = here(PLOTDIR, 'BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg')
-ggsave(file = "BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg", plot = image, width = 15, height = 4)
+plot_fn = here(PLOTDIR, 'OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg')
+ggsave(file = "OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg", plot = image, width = 15, height = 4)
 
 
-plot_fn = here(PLOTDIR, 'BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg')
+plot_fn = here(PLOTDIR, 'OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg')
 svglite(
-  filename = "BU_OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg",
+  filename = "OUD_Striatum_voomLimmaRes_N22.bycelltype3.miamiNumDEG.svg",
   width = 15,
   height = 4,
   bg = "white",

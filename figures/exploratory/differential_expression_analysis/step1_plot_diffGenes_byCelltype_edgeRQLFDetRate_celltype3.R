@@ -24,7 +24,7 @@ dir.create(PLOTDIR, showWarnings = F)
 
 ##################################################
 # 1) load in cell type labels for label transfer
-sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seuratassays")
+sce = loadHDF5SummarizedExperiment(h5Dir, prefix="OUD_Striatum_refined_all_SeuratObj_N22.h5Seuratassays")
 
 ## sore cell type IDs (kids) and sample IDs (sids)
 nk <- length(kids <- rlang::set_names(levels(factor(sce$celltype3))))
@@ -34,7 +34,7 @@ ns <- length(sids <- rlang::set_names(levels(factor(sce$orig.ident))))
 # 3) use edgeRQLFDetRate to detect per-cell type differential state analyses 
 ## for ea. cell type, run edgeRQLFDetRate w/ default parameters
 ## https://github.com/csoneson/conquer_comparison/blob/master/scripts/apply_edgeRQLFDetRate.R
-save_res_fn = here(DATADIR,'rdas', 'BU_OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.rds')
+save_res_fn = here(DATADIR,'rdas', 'OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.rds')
 res = readRDS(save_res_fn)
 
 # filter FDR < 0.05, |logFC| > 1 & sort by FDR
@@ -53,7 +53,7 @@ top_gs = top_gs[sapply(top_gs, function(x) !all(is.na(x)))]
 cs_by_k <- split(colnames(sce), sce$celltype3)
 
 ## make scatter plot per subject per cell type per DE gene per cell
-plot_fn = here(PLOTDIR, 'BU_OUD_Striatum_edgeRQLFDetRateRes_N22.bycelltype3.topDiffGene.pdf')
+plot_fn = here(PLOTDIR, 'OUD_Striatum_edgeRQLFDetRateRes_N22.bycelltype3.topDiffGene.pdf')
 pdf(plot_fn, height = 4, width = 7.3)
 # split cells by cluster
 lapply(names(top_gs), function(k) {

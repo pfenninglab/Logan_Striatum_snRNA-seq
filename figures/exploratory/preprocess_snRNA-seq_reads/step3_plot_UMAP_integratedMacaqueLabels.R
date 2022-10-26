@@ -35,11 +35,11 @@ names(othertypes_col) = othertypes
 
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-   "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
+   "OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA') 
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident_rainbow.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_all.ident_rainbow.pdf'), width = 10.5, height = 8)
 Idents(obj_merged) = obj_merged$ID
 DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID', 
         label.size = 3, pt.size = 2, ncol = 6, cols = rainbow(length(unique(obj_merged$ID))) ) +
@@ -49,7 +49,7 @@ DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID',
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.ident.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_all.ident.pdf'), width = 10.5, height = 8)
 Idents(obj_merged) = obj_merged$ID
 DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID', pt.size = 2,
         label.size = 3, ncol = 6, cols = rep('black', length(unique(obj_merged$ID)))) +
@@ -57,7 +57,7 @@ DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID', pt.size = 2,
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.clusters.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_all.clusters.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_merged, reduction = "umap", label.size = 3, ncol = 6, 
         pt.size = 2, group.by = 'seurat_clusters',  split.by = 'ID',
         cols = ArchR::paletteDiscrete(unique(obj_merged$seurat_clusters))) +
@@ -67,7 +67,7 @@ dev.off()
 
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_all.macaqueLabels.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_merged, reduction = "umap",  split.by = 'ID', ncol = 6, 
         pt.size = 2, group.by = 'celltype2', cols = c(subtypes_col, othertypes_col), label.size = 3) +
   guides(color = guide_legend(nrow = 3, override.aes= list(size = 2))) + 
@@ -75,7 +75,7 @@ DimPlot(object = obj_merged, reduction = "umap",  split.by = 'ID', ncol = 6,
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_all.macaqueLabels2.pdf'), width = 7.25, height = 4)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_all.macaqueLabels2.pdf'), width = 7.25, height = 4)
 DimPlot(object = obj_merged, reduction = "umap", group.by = 'celltype2', 
         shape.by = 'celltype2', pt.size = .75, label.size = 3) +
   scale_colour_manual(name = "Cell type", labels = names(c(subtypes_col, othertypes_col)),
@@ -89,12 +89,12 @@ dev.off()
 # 2) load in MSN sub type labels plot
 ## read in Logan BU snRNA dataset to label transfer
 obj_msn = here('data/tidy_data/Seurat_projects', 
-                    "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
+                    "OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 
 
 ## plot MSN subtypes by subjects
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.ident.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_msn.ident.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", group.by = 'ID', label.size = 3, 
           ncol = 6, split.by = 'ID', 
         cols = rep('black', length(unique(obj_merged$ID)))) +
@@ -104,7 +104,7 @@ dev.off()
 
 
 ## plot MSN subtypes by subjects
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.ident_rainbow.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_msn.ident_rainbow.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", group.by = 'ID', label.size = 3, 
         ncol = 6, split.by = 'ID', 
         cols = rainbow(length(unique(obj_merged$ID))) ) +
@@ -116,7 +116,7 @@ dev.off()
 
 
 ## plot MSN subtypes by Seurat clusters
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.clusters.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_msn.clusters.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap",  group.by = 'seurat_clusters',
         split.by = 'ID', label.size = 3, ncol = 6,
         cols = ArchR::paletteDiscrete(unique(obj_merged$seurat_clusters))) +
@@ -125,7 +125,7 @@ DimPlot(object = obj_msn, reduction = "umap",  group.by = 'seurat_clusters',
 dev.off()
 
 ## plot MSN subtypes by Macaque label transfer
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels.pdf'), width = 10.5, height = 8)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_msn.macaqueLabels.pdf'), width = 10.5, height = 8)
 DimPlot(object = obj_msn, reduction = "umap", split.by = 'ID', ncol = 6,
         group.by = 'celltype2',  cols = subtypes_col, label.size = 3) +
   guides(color = guide_legend(nrow = 2, override.aes= list(size = 2))) + 
@@ -133,7 +133,7 @@ DimPlot(object = obj_msn, reduction = "umap", split.by = 'ID', ncol = 6,
 dev.off()
 
 
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_UMAP_msn.macaqueLabels2.pdf'), width = 7.25, height = 4)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_UMAP_msn.macaqueLabels2.pdf'), width = 7.25, height = 4)
 DimPlot(object = obj_msn, reduction = "umap", group.by = 'celltype2', 
         shape.by = 'celltype2', pt.size = 1, label.size = 3) +
   scale_colour_manual(name = "Cell type", labels = names(c(subtypes_col)),
@@ -145,7 +145,7 @@ dev.off()
 
 
 ## plot number of estimated miQC compromised cells
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_CellTypeBarChart.perSample.pdf'), 
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_CellTypeBarChart.perSample.pdf'), 
     width = 7.25, height = 4, onefile = F)
 p1 = obj_merged[[]] %>% ggplot(aes(x = ID, fill = celltype1)) + 
   geom_bar(stat = 'count', position = 'fill')  + ylab('Proportion of cells') + 

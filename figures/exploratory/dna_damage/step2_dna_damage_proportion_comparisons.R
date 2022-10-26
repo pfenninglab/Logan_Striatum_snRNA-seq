@@ -50,7 +50,7 @@ names(othertypes_col) = othertypes
 #########################################
 # 1) load in the DNA damage estimates and annotations
 save_file = here(PLOTDIR, 'rdas', 
-                 'BU_OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam.rds')
+                 'OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam.rds')
 celltype_df = readRDS(save_file)
 
 ########################
@@ -119,7 +119,7 @@ modBySampleAndCell = lmer(DNA_dam_prop ~ celltype4 + celltype4:DSM.IV.OUD+ Age +
 modBySampleAndCell %>% as.data.frame() %>% relocate('p.value', .after = 'term')
 
 ## plots
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamProp.perSampleByCell.pdf'), width = 4.5, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamProp.perSampleByCell.pdf'), width = 4.5, height = 1)
 ggplot(dam_per_cellxSample2, 
        aes(x =DSM.IV.OUD, y = value, fill = name)) +
   geom_bar(position="fill", stat = 'identity') + 
@@ -139,5 +139,5 @@ dev.off()
 ###########################
 # 5) export stats to table 
 list('DNA_dam_proportion_by_sample' = modBySample %>% tidy(), 
-     'DNA_dam_proportion_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'BU_OUD_Striatum_dnaDamProp.perSampleByCell.xlsx'))
+     'DNA_dam_proportion_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamProp.perSampleByCell.xlsx'))
 

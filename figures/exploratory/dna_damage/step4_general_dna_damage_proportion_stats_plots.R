@@ -22,7 +22,7 @@ PLOTDIR='figures/exploratory/dna_damage'
 #########################################
 # 1) load in the DNA damage estimates and annotations
 save_file = here(PLOTDIR, 'rdas', 
-                 'BU_OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam2.rds')
+                 'OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam2.rds')
 celltype_df = readRDS(save_file)
 
 ########################
@@ -97,7 +97,7 @@ modBySampleAndCell %>% as.data.frame() %>% relocate('p.value', .after = 'term')
 # 4) plot all the cells together general DNA damage proportions
 
 ## plots all the subtypes
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllProp.perSampleByCell.pdf'), width = 4.5, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllProp.perSampleByCell.pdf'), width = 4.5, height = 1)
 ggplot(dam_per_cellxSample2 %>% filter(name == 'damaged'), 
        aes(x =DSM.IV.OUD, y = value, fill = DSM.IV.OUD)) +
   geom_bar(stat = 'identity') + 
@@ -125,7 +125,7 @@ neur = dam_per_cellxSample2 %>% filter(!duplicated(celltype4)) %>%
   filter(!grepl('As|lia|lig|Mur', celltype4)) %>% pull(celltype4)
 
 ## plot the glia
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllProp.perSampleByGlia.pdf'), width = 2.5, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllProp.perSampleByGlia.pdf'), width = 2.5, height = 1)
 ggplot(dam_per_cellxSample2 %>% filter(name == 'damaged' & celltype4 %in% glia), 
        aes(x =DSM.IV.OUD, y = value, fill = DSM.IV.OUD)) +
   geom_bar(stat = 'identity') + 
@@ -143,7 +143,7 @@ dev.off()
 
 
 ## plot the neurons
-pdf(here(PLOTDIR, 'plots', 'BU_OUD_Striatum_dnaDamAllProp.perSampleByNeuron.pdf'), width = 2, height = 1)
+pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamAllProp.perSampleByNeuron.pdf'), width = 2, height = 1)
 ggplot(dam_per_cellxSample2 %>% filter(name == 'damaged' & celltype4 %in% neur), 
        aes(x =DSM.IV.OUD, y = value, fill = DSM.IV.OUD)) +
   geom_bar(stat = 'identity') + 
@@ -163,5 +163,5 @@ dev.off()
 ###########################
 # 5) export stats to table 
 list('DNA_dam_prop_allortion_by_sample' = modBySample %>% tidy(), 
-     'DNA_dam_prop_allortion_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'BU_OUD_Striatum_dnaDamAllProp.perSampleByCell.xlsx'))
+     'DNA_dam_prop_allortion_by_sampleCelltype' = modBySampleAndCell) %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamAllProp.perSampleByCell.xlsx'))
 
