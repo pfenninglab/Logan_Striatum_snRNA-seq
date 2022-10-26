@@ -36,11 +36,11 @@ options(future.globals.maxSize = 80 * 1024^3)
 
 ##################################################
 # 1) create or load pseudobulk sce object
-save_pseudobulk =here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sce2.rds')
+save_pseudobulk =here(DATADIR, 'rdas', 'OUD_Striatum_refined_all_PseudoBulk_N22.sce2.rds')
 if(!file.exists(save_pseudobulk)){
   ## load the single cell counts
   h5Dir =here(DATADIR, 'HDF5Array'); dir.create(h5Dir, showWarnings = F)
-  sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat")
+  sce = loadHDF5SummarizedExperiment(h5Dir, prefix="OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat")
   
   ## merge interneurons again
   sce$celltype3 = ifelse(grepl('Int', sce$celltype3), 'Interneuron',sce$celltype3)
@@ -171,11 +171,11 @@ sapply(deg_list, function(x) x[x$p_adj < 0.05,] %>% nrow())
 ####################################################################
 ## 4) save the output of voom_limma differential state analyses
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_voom_limmaRes_bigModel_N22.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limmaRes_bigModel_N22.rds')
 saveRDS(deg_list, save_res_fn)
 
 tablesDir =file.path(DATADIR, 'tables'); dir.create(tablesDir, showWarnings = F)
-save_res_fn2 = here(tablesDir, 'BU_OUD_Striatum_voom_limmaRes_bigModel_N22.xlsx')
+save_res_fn2 = here(tablesDir, 'OUD_Striatum_voom_limmaRes_bigModel_N22.xlsx')
 deg_list %>% lapply(function(x) x %>% arrange(p_adj)) %>% writexl::write_xlsx(save_res_fn2)
 
 

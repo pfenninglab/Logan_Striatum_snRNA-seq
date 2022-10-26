@@ -9,7 +9,7 @@ sys.path.append("/home/bnphan/src/TMNT/tmnt_algorithm")
 import TMNT
 
 DATADIR="data/tidy_data/hierarchical_deg_analyses/"
-save_file = "data/tidy_data/Seurat_projects/BU_OUD_Striatum_refined_all_SeuratObj_N22.h5ad"
+save_file = "data/tidy_data/Seurat_projects/OUD_Striatum_refined_all_SeuratObj_N22.h5ad"
 striatum_ann = sc.read_h5ad(save_file)
 
 ## check has the cell type & Dx
@@ -20,13 +20,13 @@ striatum_ann.obs['level2'] = striatum_ann.obs['level2'].astype('string')
 striatum_ann.obs.groupby(['level2']).size()
 
 ## the cell type, Dx tree, and 
-cell_type_tree = Phylo.read(DATADIR + '/tables/'+ 'BU_OUD_Striatum_refined_celltype.byComp.nh', "newick")
+cell_type_tree = Phylo.read(DATADIR + '/tables/'+ 'OUD_Striatum_refined_celltype.byComp.nh', "newick")
 oud_dx_tree = Phylo.read(StringIO("(OUD)CTL;"), "newick") ## 2 cases
 input_trees = [oud_dx_tree,cell_type_tree]
 
 ## get the top variable genes
 select_gene_df = striatum_ann.var.loc[striatum_ann.var["highly_variable"].values,:]
-select_gene_df.to_csv(DATADIR + "/tables/BU_OUD_Striatum_refined_scanpy_N22_selected_genes.csv")
+select_gene_df.to_csv(DATADIR + "/tables/OUD_Striatum_refined_scanpy_N22_selected_genes.csv")
 selected_striatum_matrix = coo_matrix(striatum_ann.X[:,striatum_ann.var["highly_variable"].values])
 
 ## run TMNT w/ different combinations of lasso models & intercepts

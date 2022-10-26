@@ -41,7 +41,7 @@ options(future.globals.maxSize = 80 * 1024^3)
 
 ##################################################
 # 1) create or load pseudobulk sce object
-save_pseudobulk =here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sce2.rds')
+save_pseudobulk =here(DATADIR, 'rdas', 'OUD_Striatum_refined_all_PseudoBulk_N22.sce2.rds')
 pb = readRDS(save_pseudobulk)
 
 
@@ -109,7 +109,7 @@ cor$consensus # 0.2719249
 # 4) Use surrogate variables to estimate unmodeled variation
 
 ## estimate the number of SVs from the adjusted
-save_sva =here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sva.rds')
+save_sva =here(DATADIR, 'rdas', 'OUD_Striatum_refined_all_PseudoBulk_N22.sva.rds')
 if(! file.exists(save_sva)){
   (n.sv = num.sv(v$E, design, method="be", seed = set.seed(1))) #30
   svobj = sva(v$E, design, design0, n.sv=n.sv, B = 20)
@@ -178,21 +178,21 @@ deg_list = deg_list %>%
 ####################################################################
 ## 8) save the output of voom_limma differential state analyses
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_voom_limma_bigModelSVA_N22.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.rds')
 saveRDS(deg_list, save_res_fn)
 
 tablesDir =file.path(DATADIR, 'tables'); dir.create(tablesDir, showWarnings = F)
-save_res_fn2 = here(tablesDir, 'BU_OUD_Striatum_voom_limma_bigModelSVA_N22.xlsx')
+save_res_fn2 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.xlsx')
 deg_list %>% lapply(function(x) x %>% arrange(P.Value)) %>% writexl::write_xlsx(save_res_fn2)
 
 alpha = 0.01
 # save tables DEGs w/ P.Value < alpha up and down regulated
-save_res_fn3 = here(tablesDir, 'BU_OUD_Striatum_voom_limma_bigModelSVA_N22.lowConfCutOff.upReg.xlsx')
+save_res_fn3 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.lowConfCutOff.upReg.xlsx')
 deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% 
                       filter(P.Value < alpha, logFC > 0)) %>% 
   writexl::write_xlsx(save_res_fn3)
 
-save_res_fn4 = here(tablesDir, 'BU_OUD_Striatum_voom_limma_bigModelSVA_N22.lowConfCutOff.dnReg.xlsx')
+save_res_fn4 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.lowConfCutOff.dnReg.xlsx')
 deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% 
                       filter(P.Value < alpha, logFC < 0)) %>% 
   writexl::write_xlsx(save_res_fn4)

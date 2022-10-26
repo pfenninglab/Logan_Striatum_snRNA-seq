@@ -26,7 +26,7 @@ options(future.rng.onMisuse = 'ignore')
 # 1) load in cell type labels for label transfer
 ## read in Logan BU snRNA dataset to label transfer
 save_merged_fn = here('data/tidy_data/Seurat_projects', 
-                        "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
+                        "OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 obj_merged = save_merged_fn %>% LoadH5Seurat() 
 
 ## read in labeled monkey MSN subtype dataset, He, Kleyman et al. 2021
@@ -121,7 +121,7 @@ cluster_to_macMSN
 ############################################
 # 4) save the subset of cells that are MSNs
 save_subset_msn = here('data/tidy_data/Seurat_projects',
-                "BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat")
+                "OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat")
 SaveH5Seurat(obj_msn, filename = save_subset_msn, overwrite = TRUE)
 SaveH5Seurat(obj_merged, filename = save_merged_fn, overwrite = TRUE)
 

@@ -39,7 +39,7 @@ typecolors = c(subtypes_col, othertypes_col)
 ## 1) load in the refined cell type object
 ## read in Logan BU snRNA dataset to label transfer
 obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
+                  "OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA')
 
 obj_merged$celltype3 = ifelse(grepl('Int', obj_merged$celltype3), 'Interneuron',obj_merged$celltype3)
@@ -49,7 +49,7 @@ Idents(obj_merged) = 'celltype3'
 
 
 meta = obj_merged[[]]
-save_meta_fn = here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_SeuratObj_N22.metadata.rds')
+save_meta_fn = here(DATADIR, 'rdas', 'OUD_Striatum_refined_all_SeuratObj_N22.metadata.rds')
 dir.create( here(DATADIR, 'rdas'), showWarnings = F)
 saveRDS(meta, file=save_meta_fn)
 

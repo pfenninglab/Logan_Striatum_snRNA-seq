@@ -33,11 +33,11 @@ options(future.globals.maxSize = 80 * 1024^3)
 
 ##################################################
 # 1) create or load pseudobulk sce object
-save_pseudobulk =here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sce.rds')
+save_pseudobulk =here(DATADIR, 'rdas', 'OUD_Striatum_refined_all_PseudoBulk_N22.sce.rds')
 if(!file.exists(save_pseudobulk)){
   ## lo
   h5Dir =here(DATADIR, 'HDF5Array'); dir.create(h5Dir, showWarnings = F)
-  sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat")
+  sce = loadHDF5SummarizedExperiment(h5Dir, prefix="OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat")
   
   ## merge interneurons again
   sce$celltype3 = ifelse(grepl('Int', sce$celltype3), 'Interneuron',sce$celltype3)

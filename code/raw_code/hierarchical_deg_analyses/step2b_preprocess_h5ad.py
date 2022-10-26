@@ -5,7 +5,7 @@ import anndata as an
 import sys
 
 DATADIR="data/tidy_data/hierarchical_deg_analyses/"
-save_file = "data/tidy_data/Seurat_projects/BU_OUD_Striatum_refined_all_SeuratObj_N22.h5ad"
+save_file = "data/tidy_data/Seurat_projects/OUD_Striatum_refined_all_SeuratObj_N22.h5ad"
 striatum_ann = sc.read_h5ad(save_file)
 
 ## relabel the columns for multi-level hierarchy

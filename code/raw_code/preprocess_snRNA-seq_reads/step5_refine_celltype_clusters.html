@@ -14684,13 +14684,13 @@ Warning message:
 <span class="c1"># 1) load in cell type labels for label transfer</span>
 <span class="c1">## read in Logan BU snRNA dataset for label refinement</span>
 <span class="n">save_merged_fn</span> <span class="o">=</span> <span class="nf">here</span><span class="p">(</span><span class="s">&#39;data/tidy_data/Seurat_projects&#39;</span><span class="p">,</span> 
-                        <span class="s">&quot;BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
+                        <span class="s">&quot;OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
 <span class="n">obj_merged</span> <span class="o">=</span> <span class="n">save_merged_fn</span> <span class="o">%&gt;%</span> <span class="nf">LoadH5Seurat</span><span class="p">()</span> 
 
 
 <span class="c1">## read in the MSN dataset for label refinement</span>
 <span class="n">save_subset_msn</span> <span class="o">=</span> <span class="nf">here</span><span class="p">(</span><span class="s">&#39;data/tidy_data/Seurat_projects&#39;</span><span class="p">,</span> 
-                        <span class="s">&quot;BU_OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
+                        <span class="s">&quot;OUD_Striatum_subsetMSN_SCT_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
 <span class="n">obj_msn</span> <span class="o">=</span> <span class="n">save_subset_msn</span> <span class="o">%&gt;%</span> <span class="nf">LoadH5Seurat</span><span class="p">()</span>
 </pre></div>
 
@@ -62810,17 +62810,17 @@ class="
 <span class="c1"># 6) save the refined clusters</span>
 
 <span class="c1">## export the metadata</span>
-<span class="n">save_meta_fn</span> <span class="o">=</span> <span class="nf">here</span><span class="p">(</span><span class="s">&#39;data/tidy_data/tables&#39;</span><span class="p">,</span><span class="s">&quot;BU_OUD_Striatum_refined_all_SeuratObj_N22.txt.gz&quot;</span><span class="p">)</span>
+<span class="n">save_meta_fn</span> <span class="o">=</span> <span class="nf">here</span><span class="p">(</span><span class="s">&#39;data/tidy_data/tables&#39;</span><span class="p">,</span><span class="s">&quot;OUD_Striatum_refined_all_SeuratObj_N22.txt.gz&quot;</span><span class="p">)</span>
 <span class="nf">write_tsv</span><span class="p">(</span><span class="n">obj_merged</span><span class="o">@</span><span class="n">meta.data</span><span class="p">,</span> <span class="n">save_meta_fn</span><span class="p">)</span>
 
 <span class="c1">## save in the MSN dataset for label refinement</span>
 <span class="n">save_subset_msn</span> <span class="o">=</span> <span class="nf">here</span><span class="p">(</span><span class="s">&#39;data/tidy_data/Seurat_projects&#39;</span><span class="p">,</span> 
-                        <span class="s">&quot;BU_OUD_Striatum_refined_msn_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
+                        <span class="s">&quot;OUD_Striatum_refined_msn_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
 <span class="nf">SaveH5Seurat</span><span class="p">(</span><span class="n">obj_msn</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">save_subset_msn</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
 
 <span class="c1">## save in the full dataset for label refinement</span>
 <span class="n">save_merged_fn</span> <span class="o">=</span> <span class="nf">here</span><span class="p">(</span><span class="s">&#39;data/tidy_data/Seurat_projects&#39;</span><span class="p">,</span> 
-                        <span class="s">&quot;BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
+                        <span class="s">&quot;OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat&quot;</span><span class="p">)</span>
 <span class="nf">SaveH5Seurat</span><span class="p">(</span><span class="n">obj_merged</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">save_merged_fn</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
 </pre></div>
 

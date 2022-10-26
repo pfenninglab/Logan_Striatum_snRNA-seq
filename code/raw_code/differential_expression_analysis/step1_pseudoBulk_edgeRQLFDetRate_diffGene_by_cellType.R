@@ -36,7 +36,7 @@ options(future.globals.maxSize = 80 * 1024^3)
 # 1) load in cell type labels for label transfer
 ## read in Logan BU snRNA dataset to label transfer
 save_merged_fn = here('data/tidy_data/Seurat_projects', 
-                        "BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
+                        "OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 ## load only the scaled and raw RNA counts
 obj = save_merged_fn %>% LoadH5Seurat(assay = 'RNA') 
 head(obj[[]])
@@ -48,8 +48,8 @@ sce = as.SingleCellExperiment(obj)
 # 2) compute per-sample per cell type pseudobulk DGE profiles
 ## save to hdf5 file format for quick save/load
 h5Dir =here(DATADIR, 'HDF5Array'); dir.create(h5Dir, showWarnings = F)
-saveHDF5SummarizedExperiment(sce, h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat", replace=TRUE)
-sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
+saveHDF5SummarizedExperiment(sce, h5Dir, prefix="OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat", replace=TRUE)
+sce = loadHDF5SummarizedExperiment(h5Dir, prefix="OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 
 ## store cell type IDs (k.ids) and sample IDs (s.ids)
 nk <- length(kids <- rlang::set_names(levels(factor(sce$celltype3))))
@@ -112,11 +112,11 @@ res <- lapply(kids[!kids %in% exclude_celltypes ], function(k) {
 ####################################################################
 ## 4) save the output of edgeRQLFDetRate differential state analyses
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.rds')
 saveRDS(res, save_res_fn)
 
 tablesDir =file.path(DATADIR, 'tables'); dir.create(tablesDir, showWarnings = F)
-save_res_fn2 = here(tablesDir, 'BU_OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.xlsx')
+save_res_fn2 = here(tablesDir, 'OUD_Striatum_edgeRQLFDetRateRes_bycelltype3_N22.xlsx')
 names(res) = make.names(names(res))
 res %>% lapply(function(x) x %>% arrange(p_adj)) %>% writexl::write_xlsx(save_res_fn2)
 

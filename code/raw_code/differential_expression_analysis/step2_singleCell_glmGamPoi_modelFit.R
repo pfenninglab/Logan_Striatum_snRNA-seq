@@ -33,12 +33,12 @@ options(future.globals.maxSize = 80 * 1024^3)
 # 1) load in cell type labels for label transfer
 ## read in Logan BU snRNA dataset to label transfer
 h5Dir =here(DATADIR, 'HDF5Array'); dir.create(h5Dir, showWarnings = F)
-sce = loadHDF5SummarizedExperiment(h5Dir, prefix="BU_OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
+sce = loadHDF5SummarizedExperiment(h5Dir, prefix="OUD_Striatum_filtered_SCT_SeuratObj_N22.h5Seurat")
 
 ###########################################################
 # 2) Fit or get the glmGamPoi fit for cell type by DSM OUD dx
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F, recursive = T)
-save_fit_fn = here(rdasDir, 'BU_OUD_Striatum_glmGamPoi_modelFit_N22.rds')
+save_fit_fn = here(rdasDir, 'OUD_Striatum_glmGamPoi_modelFit_N22.rds')
 
 if(!file.exists(save_fit_fn)){
   ## fit the glmGamPoi model for single cell expression
@@ -73,7 +73,7 @@ res = lapply(res, function(x) x %>%
                              'p_adj' = 'adj_pval', 'F' = 'f_statistic'))
 
 rdasDir = file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'BU_OUD_Striatum_glmGamPoiRes_byCelltype2_N22.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_glmGamPoiRes_byCelltype2_N22.rds')
 saveRDS(res, save_res_fn)
 
 

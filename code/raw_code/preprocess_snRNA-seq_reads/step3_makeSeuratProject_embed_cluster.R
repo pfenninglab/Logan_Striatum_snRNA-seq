@@ -128,7 +128,7 @@ good_clusters <- t1 %>% filter(prop > 0.10) %>% pull(seurat_clusters)
 ## export unfiltered per-cell QC metric table
 obj_merged@meta.data = obj_merged[[]] %>% relocate(dropletQC.keep, .after = 'dropletQC.nucFrac')
 save_qcTale_fn = here('data/tidy_data/tables', 
-                      paste0("BU_OUD_Striatum_unfiltered_QC_table_N",num_samples,'.txt.gz'))
+                      paste0("OUD_Striatum_unfiltered_QC_table_N",num_samples,'.txt.gz'))
 write_tsv(obj_merged@meta.data, save_qcTale_fn)
 
 ## subset cells to those not predicted low QC or doublet
@@ -146,11 +146,11 @@ obj_filtered = obj_filtered %>% RunPCA(verbose = FALSE) %>%
 #########################################################
 # 6) save projects, as h5 object for on-disk computation
 save_proj_h5_fn = here('data/tidy_data/Seurat_projects', 
-                       paste0("BU_OUD_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.h5Seurat'))
+                       paste0("OUD_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.h5Seurat'))
 SaveH5Seurat(obj_filtered, filename = save_proj_h5_fn,overwrite = TRUE)
 
 ## save normalized, UMAP embedded, object for downstream analyses
 save_proj_fn = here('data/tidy_data/Seurat_projects', 
-                      paste0("BU_OUD_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.rds'))
+                      paste0("OUD_Striatum_filtered_SCT_SeuratObj_N",num_samples,'.rds'))
 saveRDS(obj_filtered, save_proj_fn)
 

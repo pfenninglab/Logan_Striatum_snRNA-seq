@@ -34,7 +34,7 @@ options(future.globals.maxSize = 80 * 1024^3)
 # 1) load in cell type labels for label transfer
 ## read in Logan BU snRNA dataset to label transfer
 save_merged_fn = here('data/tidy_data/Seurat_projects', 
-                      "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat")
+                      "OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat")
 
 ## load the integrated object for 
 obj = save_merged_fn %>% LoadH5Seurat(assay = 'integrated')
@@ -86,7 +86,7 @@ my_tree <- ape::nj(distMat)
 # my_tree = root(my_tree,outgroup =  'Microglia')
 tree_dat = as.treedata(my_tree) %>% groupOTU(cell_class, "cell_class")
 
-pdf(here(PLOTDIR, 'BU_OUD_Striatum_refined_celltype.byMarker.pdf'), height = 4, width = 2)
+pdf(here(PLOTDIR, 'OUD_Striatum_refined_celltype.byMarker.pdf'), height = 4, width = 2)
 ggtree(tree_dat, aes(color=cell_class)) + 
   geom_tiplab(align=TRUE, color = 'black') + 
   scale_color_manual(values = cell_class_col, name = 'Grouping') + 
@@ -104,7 +104,7 @@ set.seed(101)
 my_tree <- ape::nj(distMat)
 # my_tree = root(my_tree,outgroup =  'Microglia')
 tree_dat2 = as.treedata(my_tree) %>% groupOTU(cell_class2, "cell_class")
-pdf(here(PLOTDIR, 'BU_OUD_Striatum_refined_celltype.byComp.pdf'), height = 4, width = 2)
+pdf(here(PLOTDIR, 'OUD_Striatum_refined_celltype.byComp.pdf'), height = 4, width = 2)
 ggtree(tree_dat2, aes(color=cell_class)) + 
   geom_tiplab(align=TRUE, color = 'black') + 
   scale_color_manual(values = cell_class2_col, name = 'Grouping') + 
@@ -116,7 +116,7 @@ ggtree(tree_dat2, aes(color=cell_class)) +
 dev.off()
 
 ## export the data driven tree
-tree_file = here(DATADIR, 'tables', 'BU_OUD_Striatum_refined_celltype.byComp.nh')
+tree_file = here(DATADIR, 'tables', 'OUD_Striatum_refined_celltype.byComp.nh')
 phylo <- as.phylo(tree_dat2)
 phylo$edge.length <- NULL
 ## print the newick text
