@@ -46,10 +46,9 @@ obj_merged$celltype1 = factor(obj_merged$celltype1 , c('MSNs', othertypes))
 obj_merged$celltype2 = factor(obj_merged$celltype2 , c(subtypes, othertypes))
 Idents(obj_merged) = 'celltype1'
 
-## plot the opioid receptors and ligands
+## plot the circadian genes
 markCircadian = c('CLOCK', 'ARNTL', 'PER1', 'PER2', 'PER3', 
-                  'CRY1', 'CRY2', 'NPAS2', 
-                  'NR1D1', 'NR1D2', 'SIRT1', 'NAMPT') # opioid receptor genes
+                  'CRY1', 'CRY2', 'NPAS2', 'NR1D1', 'NR1D2', 'SIRT1', 'NAMPT')
 obj_merged$celltype1 = factor(obj_merged$celltype1, levels = c('MSNs', othertypes)) 
 Idents(obj_merged) = 'celltype1'
 
