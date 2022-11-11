@@ -47,7 +47,7 @@ df2 = here('data/tidy_data/tables',
   summarise(numTotal = n()) %>% 
   inner_join(df1) %>% 
   mutate(`% passing QC` = `# nuclei`/numTotal * 100 )%>% 
-  pivot_longer(cols = c(`# nuclei`, `% passing QC`), 
+  pivot_longer(cols = c(`# nuclei`, `% passing QC`, numTotal), 
                names_to = 'metric')
 
 fig1_violin_propCells_per_sample_fn = 
@@ -88,4 +88,13 @@ ggplot(df3, aes(x = DSM.IV.OUD, y = value, fill = DSM.IV.OUD)) +
   ylab('per-nuclei QC metric') +
   theme(legend.position = 'none', axis.title.x = element_blank())
 dev.off()
+
+
+############################
+# 4) export the average su
+stable1_per_sample_QC_fn = 
+  here(PLOTDIR, 'tables', 's1.3_table_post_sequencing_qc_per_sample.xlsx')
+df4 = bind_rows(df2, df3) %>% 
+  pivot_wider(names_from = 'metric', values_from = 'value') %>% 
+  writexl::write_xlsx(stable1_per_sample_QC_fn)
 
