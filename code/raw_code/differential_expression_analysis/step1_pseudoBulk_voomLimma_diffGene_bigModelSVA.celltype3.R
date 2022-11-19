@@ -99,41 +99,48 @@ if(!file.exists(save_pseudobulk)){
 
 ####################################################
 ## 2) filter pseudobulk samples that have too few cells
-pb = pb[, pb$numCells > 20]
+pb = pb[, pb$numCells > 15]
 pb = pb[, pb$celltype3 != 'Mural'] # drop mural cells b/c too few
 pb$celltype3 = make.names(pb$celltype3) %>% as.factor()
-pb$celltype_dx = interaction(pb$DSM.IV.OUD, pb$celltype3) %>% as.factor()
-table(pb$celltype_dx)
-
 pb$Region = as.factor(pb$Region)
 pb$Sex = as.factor(pb$Sex)
+pb$numCells = as.numeric(pb$numCells)
+
+## make an interaction term for all the combinations
+pb$celltype_dx_rg_sex = interaction(pb$DSM.IV.OUD, pb$celltype3,pb$Sex, pb$Region) %>% 
+  as.factor() %>% droplevels()
+table(pb$celltype_dx_rg_sex)
+
+## interaction term w/o the DX
+pb$celltype_rg_sex = interaction(pb$celltype3,pb$Sex, pb$Region)  %>% 
+  as.factor() %>% droplevels()
+table(pb$celltype_rg_sex)
 
 ## construct design & contrast matrix regressing out the DetRate
-design <- model.matrix(~ 0 + cdr + Age + Sex + PMI + RIN + Region + # co-variates 
-                         celltype_dx + # nested variability of cell type and Dx
-                         celltype_dx:Sex + # sex-specific effect in OUD and celltype
-                         celltype_dx:Region, # region-specific effect in OUD and celltype
+design <- model.matrix(~ 0 + celltype_dx_rg_sex  + # term capturing the main effects
+                         Age + PMI + RIN + numCells + cdr, # co-variates 
                        data = colData(pb))
 
 ## construct the null model, used in regressing out the various factors
-design0 <- model.matrix(~ 0 + cdr + Age + Sex + PMI + RIN + Region + celltype3, # co-variates 
+design0 <- model.matrix(~ 0 +  celltype_rg_sex  + # term capturing the effects w/o Dx
+                          Age + PMI + RIN  + numCells + cdr, # co-variates 
                         data = colData(pb))
 
 ####################################
 # 3) normalization using voom-limma
 y <- DGEList(counts = assays(pb)[[1]])
-dim(y) # 31611   203
+dim(y) # 31611   210
 
 ## filter out genes w/ low counts
 A <- rowMeans(y$counts)
 isexpr <- A > 5
 y <- y[isexpr, , keep.lib.size = FALSE]
-dim(y) # 20409   203
+dim(y) # 20313   210
 
 ## filter out ribosomal genes, filter out mitochondria genes
 keep.genes <- grep("^RP[SL]|^MT-",rownames(y), value = T, invert = T)
 y = y[keep.genes, , keep.lib.size = FALSE]
-dim(y) #  20299   203
+dim(y) #  20203   210
 
 # normalize counts
 y <- calcNormFactors(y)
@@ -141,13 +148,13 @@ y <- calcNormFactors(y)
 ## voom precision weights and sample-wise quality weights normalization
 v <- voomWithQualityWeights(y, design)
 cor <- duplicateCorrelation(v, design, block = colData(pb)$Case)
-cor$consensus # 0.2617345
+cor$consensus # 0.2484806
 
 ## recalculate weights after adjusting for correlated samples from same subject
 v <- voomWithQualityWeights(y, design, block = colData(pb)$Case, 
           correlation = cor$consensus)
 cor <- duplicateCorrelation(v, design, block = colData(pb)$Case)
-cor$consensus # 0.2339142
+cor$consensus # 0.2465679
 
 
 ############################################################
@@ -156,7 +163,7 @@ cor$consensus # 0.2339142
 ## estimate the number of SVs from the adjusted
 save_sva =here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sva.rds')
 if(! file.exists(save_sva)){
-  (n.sv = num.sv(v$E, design, method="be", seed = set.seed(1))) #23
+  (n.sv = num.sv(v$E, design, method="be", seed = set.seed(1))) #21
   svobj = sva(v$E, design, design0, n.sv=n.sv, B = 20)
   saveRDS(svobj, save_sva)
 } else {
@@ -193,31 +200,32 @@ celltypes=levels(factor(pb$celltype3 %>% make.names()))
 designSV2 =designSV
 colnames(designSV2) = make.names(colnames(designSV2))
 
-## make the cell type contrats
+## make the cell type contrasts
 con_celltypes = sapply(setNames(celltypes, celltypes),function(cell) {
-  OUD = paste0('celltype_dxOUD.',cell) %>% make.names()
-  CTL = paste0('celltype_dxCTL.',cell) %>% make.names()
-  
-  OUDSexM = paste0('SexM.celltype_dxOUD.',cell) %>% make.names()
-  CTLSexM = paste0('SexM.celltype_dxCTL.',cell) %>% make.names()
-  
-  OUDRegP = paste0('RegionPutamen.celltype_dxOUD.',cell) %>% make.names()
-  CTLRegP = paste0('RegionPutamen.celltype_dxCTL.',cell) %>% make.names()
-  
-  paste('(',OUD,'+',OUDSexM,'+',OUDRegP,')/3',
-        '-(',CTL,'+',CTLSexM,'+', CTLRegP,')/3')
+  cell = colnames(designSV2) %>% make.names() %>% str_subset(paste0('\\.', cell, '\\.'))
+  OUD = cell %>% str_subset('OUD'); CTL = cell %>% str_subset('CTL')
+
+  N_OUD = OUD %>% length(); OUD = OUD %>% paste(collapse = ' + ')
+  N_CTL = CTL %>% length(); CTL = CTL %>% paste(collapse = ' + ')
+  paste('(',OUD,')/',N_OUD, '-(',CTL,')/',N_CTL)
 })
 
-## the first cell type x dx is the reference cell type
-con_celltypes[1] = "(celltype_dxOUD.Astrocytes + SexM.celltype_dxOUD.Astrocytes + RegionPutamen.celltype_dxOUD.Astrocytes)/3" 
+
+## proportion of each cell type
+df_prop = 'data/tidy_data/tables/BU_OUD_Striatum_refined_celltype3_proportions.txt' %>% 
+  read_tsv() %>% deframe()
+names(df_prop) = names(df_prop) %>% make.names()
+df_prop = df_prop[celltypes]
+
+ind_neur = grepl('^D|^Int',celltypes)
+ind_glia = !grepl('^D|^Int',celltypes)
 
 ## create the contrasts for OUD effect Between all cells or major classes
-con_groups = c('All' = paste('(', paste(con_celltypes, collapse = ' + '), 
-                             ')/', length(con_celltypes)), 
-               'Neuron' = paste('(', paste(con_celltypes[grepl('^D|^Int',celltypes)], collapse = ' + '), 
-                                ')/', sum(grepl('^D|^Int',celltypes))), 
-               'Glia' =  paste('(', paste(con_celltypes[!grepl('^D|^Int',celltypes)], collapse = ' + '),
-                               ')/', sum(!grepl('^D|^Int',celltypes))))
+con_groups = c('All' = paste0('(', con_celltypes,')*', df_prop) %>% paste(collapse = ' + '), 
+               'Neuron' = paste0('(', con_celltypes[ind_neur],')*', 
+                                 df_prop[ind_neur]/sum(df_prop[ind_neur])) %>% paste(collapse = ' + '), 
+               'Glia' =  paste0('(', con_celltypes[ind_glia],')*', 
+                                df_prop[ind_glia]/sum(df_prop[ind_glia])) %>% paste(collapse = ' + '))
 
 ## refit the model based on these contrasts
 cont.matrix <- makeContrasts(contrasts= c(con_groups, con_celltypes), levels=designSV2)
@@ -258,32 +266,32 @@ deg_list %>% lapply(function(x) x %>% arrange(P.Value)) %>% writexl::write_xlsx(
 
 # save tables DEGs w/ P.Value < alpha up and down regulated
 save_res_fn3 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.lowConfCutOff.upReg.xlsx')
-deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% 
-                      filter(P.Value < 0.01, logFC > 0)) %>% 
+deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% filter(P.Value < 0.01, logFC > 0)) %>% 
   writexl::write_xlsx(save_res_fn3)
 
 save_res_fn4 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.lowConfCutOff.dnReg.xlsx')
-deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% 
-                      filter(P.Value < 0.01, logFC < 0)) %>% 
+deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% filter(P.Value < 0.01, logFC < 0)) %>% 
   writexl::write_xlsx(save_res_fn4)
 
 
 #######################################
 ## 9) check out some interesting genes
 sapply(deg_list, function(x){
-  x %>% filter(gene %in% c('CRHR1', 'LRP8'))%>% 
-    pull(adj.P.Val.Between)
+  x %>% filter(gene %in% c('CRHR1', 'LRP8')) %>% pull(adj.P.Val.Between)
 })
 
 lapply(deg_list, function(x){
-  x %>% filter(adj.P.Val.Between < 0.05) %>% pull(gene) %>% 
-    paste(collapse = ', ')
+  x %>% filter(adj.P.Val.Between < 0.05) %>% pull(gene) %>% paste(collapse = ', ')
 })
-
 
 lapply(deg_list, function(x){
   x %>% filter(adj.P.Val.Between < 0.05) %>% pull(gene) %>% 
     str_subset('^FOX|^GAD|^CHAT$|^TH$|^KCN|^SCN|^SLC') %>% 
     paste(collapse = ', ')
+})
+
+lapply(deg_list, function(x){
+  x %>% filter(adj.P.Val.Between < 0.05) %>% pull(gene) %>% 
+    str_subset('^DRD|^OPR') %>% paste(collapse = ', ')
 })
 
