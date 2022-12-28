@@ -292,6 +292,6 @@ lapply(deg_list, function(x){
 
 lapply(deg_list, function(x){
   x %>% filter(adj.P.Val.Between < 0.05) %>% pull(gene) %>% 
-    str_subset('^DRD|^OPR') %>% paste(collapse = ', ')
+    str_subset('^DRD|^OPR|^CADM|^CRHR') %>% paste(collapse = ', ')
 })
 

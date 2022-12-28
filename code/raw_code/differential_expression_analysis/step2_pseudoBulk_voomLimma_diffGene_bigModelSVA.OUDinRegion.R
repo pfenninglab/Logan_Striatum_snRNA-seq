@@ -37,10 +37,11 @@ celltypes=levels(factor(pb$celltype3 %>% make.names()))
 designSV2 =designSV
 colnames(designSV2) = make.names(colnames(designSV2))
 
-## make the cell type contrasts
-con_celltypes_male = sapply(setNames(celltypes, celltypes),function(cell) {
+## make the cell type contrasts in Putamens
+con_celltypes_putamen = sapply(setNames(celltypes, celltypes),function(cell) {
   cell = colnames(designSV2) %>% make.names() %>% 
-    str_subset(paste0('\\.', cell, '\\.')) %>% str_subset(paste0('\\.M\\.'))
+    str_subset(paste0('\\.', cell, '\\.')) %>% 
+    str_subset(paste0('\\.Putamen')) ## this part here looks in just Putamens
   OUD = cell %>% str_subset('OUD') 
   CTL = cell %>% str_subset('CTL')
   
@@ -63,23 +64,25 @@ ind_neur = grepl('^D|^Int',celltypes)
 ind_glia = !grepl('^D|^Int',celltypes)
 
 ## create the contrasts for OUD effect Between all cells or major classes
-con_groups_male = c('All' = paste0('(', con_celltypes_male,')*', df_prop) %>% paste(collapse = ' + '), 
-               'Neuron' = paste0('(', con_celltypes_male[ind_neur],')*', 
+con_groups_putamen = c('All' = paste0('(', con_celltypes_putamen,')*', df_prop) %>% paste(collapse = ' + '), 
+               'Neuron' = paste0('(', con_celltypes_putamen[ind_neur],')*', 
                                  df_prop[ind_neur]/sum(df_prop[ind_neur])) %>% paste(collapse = ' + '), 
-               'Glia' =  paste0('(', con_celltypes_male[ind_glia],')*', 
+               'Glia' =  paste0('(', con_celltypes_putamen[ind_glia],')*', 
                                 df_prop[ind_glia]/sum(df_prop[ind_glia])) %>% paste(collapse = ' + '))
 
-## refit the model based on these contrasts
-con_male = c(con_groups_male, con_celltypes_male)
-con_female = con_male %>% str_replace_all('\\.M\\.', '.F.') %>% 
-  setNames(names(con_male) %>% paste0('#SexF'))
-names(con_male) = paste0(names(con_male), '#SexM')
-cont.matrix <- makeContrasts(contrasts= c(con_female, con_male), levels=designSV2)
+## swap the putamen-OUD effects w/ contracts for caudate-OUD effects
+con_putamen = c(con_groups_putamen, con_celltypes_putamen)
+con_caudate = con_putamen %>% str_replace_all('\\.Putamen', '.Caudate') %>% 
+  setNames(names(con_putamen) %>% paste0('#RegionCaudate'))
+names(con_putamen) = paste0(names(con_putamen), '#RegionPutamen')
+cont.matrix <- makeContrasts(contrasts= c(con_caudate, con_putamen), levels=designSV2)
 rownames(cont.matrix) = colnames(designSV)
+
+## refit the model based on these contrasts
 fit2 <- contrasts.fit(fit, cont.matrix) %>% eBayes()
 
 ## compute the DEGs from these contrasts
-deg_list = lapply(setNames(colnames(cont.matrix), names(c(con_female, con_male))), 
+deg_list = lapply(setNames(colnames(cont.matrix), names(c(con_caudate, con_putamen))), 
                   function(coef){
                     topTable(coef = coef, fit =fit2, n=Inf) %>% arrange(P.Value) %>% 
                       ## use SWFDR to increase power of detecting DEGs based on avg expression covariate
@@ -91,29 +94,54 @@ deg_list = lapply(setNames(colnames(cont.matrix), names(c(con_female, con_male))
 ## FDR correction Between all tests
 deg_list = deg_list %>% data.table::rbindlist(idcol = 'group') %>% 
   mutate(adj.P.Val.Between =  lm_qvalue(P.Value, X=AveExpr)$q, 
-         celltype = ss(group, '#', 1), Sex = ss(group, '#', 2)) %>%
-  dplyr::select(-group) %>% pivot_longer(-c(gene, celltype, Sex)) %>% 
-  pivot_wider(id_cols = c(celltype, gene), names_from = c(name, Sex), 
+         celltype = ss(group, '#', 1), Region = ss(group, '#', 2)) %>%
+  dplyr::select(-group) %>% pivot_longer(-c(gene, celltype, Region)) %>% 
+  pivot_wider(id_cols = c(celltype, gene), names_from = c(name, Region), 
               values_from = value) %>% 
-  split(f = 'celltype')
+  split(f = .$celltype)
+
+
+## calculate the interaction score between the 2 conditions
+deg_list = deg_list %>% lapply(function(x){
+  x %>% 
+    ## calculate a number that gives both statistical signif + effect size
+    mutate(dir_RegionCaudate = -log10(P.Value_RegionCaudate) * 
+             sign(logFC_RegionCaudate),
+           dir_RegionPutamen = -log10(P.Value_RegionPutamen) * 
+             sign(logFC_RegionPutamen),
+           ## this will score genes most different b/t 2 conditions
+           dir_difference = (dir_RegionCaudate - dir_RegionPutamen)) %>% 
+    arrange(desc(abs(dir_difference)))
+})
 
 
 ####################################################################
 ## 3) save the output of voom_limma differential state analyses
 rdasDir =file.path(DATADIR, 'rdas'); dir.create(rdasDir, showWarnings = F)
-save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.rds')
+save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinRegion.rds')
 saveRDS(deg_list, save_res_fn)
 
 tablesDir = file.path(DATADIR, 'tables'); dir.create(tablesDir, showWarnings = F)
-save_res_fn2 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.xlsx')
+save_res_fn2 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinRegion.xlsx')
 deg_list %>% writexl::write_xlsx(save_res_fn2)
 
-# # save tables DEGs w/ P.Value < alpha up and down regulated
-# save_res_fn3 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.lowConfCutOff.upReg.xlsx')
-# deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% filter(P.Value < 0.01, logFC > 0)) %>% 
-#   writexl::write_xlsx(save_res_fn3)
-# 
-# save_res_fn4 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.lowConfCutOff.dnReg.xlsx')
-# deg_list %>% lapply(function(x) x %>% arrange(P.Value) %>% filter(P.Value < 0.01, logFC < 0)) %>% 
-#   writexl::write_xlsx(save_res_fn4)
-# 
+
+# save tables DEGs w/ P.Value < alpha up and down regulated w/in Make
+save_res_fn3 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinPutamen.lowConfCutOff.upReg.xlsx')
+deg_list %>% lapply(function(x) x %>% filter(P.Value_RegionPutamen < 0.01, logFC_RegionPutamen > 0)) %>%
+  writexl::write_xlsx(save_res_fn3)
+
+save_res_fn4 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinPutamen.lowConfCutOff.dnReg.xlsx')
+deg_list %>% lapply(function(x) x %>% filter(P.Value_RegionPutamen < 0.01, logFC_RegionPutamen < 0)) %>% 
+  writexl::write_xlsx(save_res_fn4)
+
+
+# save tables DEGs w/ P.Value < alpha up and down regulated w/in Caudate
+save_res_fn3 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinCaudate.lowConfCutOff.upReg.xlsx')
+deg_list %>% lapply(function(x) x %>% filter(P.Value_RegionCaudate < 0.01, logFC_RegionCaudate > 0)) %>%
+  writexl::write_xlsx(save_res_fn3)
+
+save_res_fn4 = here(tablesDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinCaudate.lowConfCutOff.dnReg.xlsx')
+deg_list %>% lapply(function(x) x %>% filter(P.Value_RegionCaudate < 0.01, logFC_RegionCaudate < 0)) %>% 
+  writexl::write_xlsx(save_res_fn4)
+
