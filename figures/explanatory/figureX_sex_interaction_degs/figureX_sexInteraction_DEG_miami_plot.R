@@ -38,24 +38,31 @@ my_theme = theme_classic(base_size = 6)
 #################################################
 # 1) load in the DEG table from the big analyses
 rdasDir =file.path(DATADIR,'differential_expression_analysis', 'rdas')
-save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.sexInteraction.rds')
-res = readRDS(save_res_fn)
 
+## DEGs of OUD vs. Control in either females or male
+res_OUDwinSex = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.rds') %>% readRDS() 
 
 ######################################
 ## 2) count DEGs within each grouping
 alpha = 0.05
-df = res %>% lapply(function(x){
-  out = data.frame(numDiff = sum(x$adj.P.Val.Between < alpha, na.rm = T), 
-                   "Up.Regulated" = sum(x$adj.P.Val.Between < alpha & x$logFC > 0,  na.rm = T),
-                   "Down.Regulated" = sum(x$adj.P.Val.Between < alpha & x$logFC < 0,  na.rm = T))
+df = res_OUDwinSex %>% lapply(function(x){
+  ## calculate a number that gives both statistical signif + effect size
+  x = x %>% mutate(tmpF = -log10(adj.P.Val.Between_SexF) * sign(logFC_SexF),
+         tmpM = -log10(adj.P.Val.Between_SexM) * sign(logFC_SexM),
+         ## interaction_score is based on a mean-difference MA-plot
+         ## this will score genes (most different vs. most similar of OUD DEGs in M or F)
+         interaction_score = (tmpF - tmpM)/ abs(tmpM + tmpF)) %>% 
+    filter(adj.P.Val.Between_SexF < alpha | adj.P.Val.Between_SexM < alpha)
+    
+  out = data.frame("Female.Unique" = sum(x$interaction_score > 0,  na.rm = T),
+                   "Male.Unique" = sum(x$interaction_score < 0,  na.rm = T))
   return(out)
 }) %>% data.table::rbindlist(idcol = 'celltype')
 
-df_long = df %>% pivot_longer(cols = c('Up.Regulated', 'Down.Regulated'), names_to = 'Direction', 
+df_long = df %>% pivot_longer(cols = c('Male.Unique', 'Female.Unique'), names_to = 'Direction', 
                               values_to = 'numDEG') %>% 
-  mutate(numDEG = ifelse(Direction =='Down.Regulated', -numDEG, numDEG),
-         Direction = factor(Direction, c('Down.Regulated', 'Up.Regulated')), 
+  mutate(numDEG = ifelse(Direction =='Female.Unique', -numDEG, numDEG),
+         Direction = factor(Direction, c('Female.Unique', 'Male.Unique')), 
          celltype_class = case_when(
            grepl('All|Neuron|Glia', celltype) ~ 'Class',
            grepl('^D|^Int', celltype)~ 'Neuron', 

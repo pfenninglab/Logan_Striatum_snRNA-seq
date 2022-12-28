@@ -45,18 +45,28 @@ my_theme = theme_classic(base_size = 6)
 #################################################
 # 1) load in the DEG table from the big analyses
 rdasDir =file.path(DATADIR,'differential_expression_analysis', 'rdas')
-save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.sexInteraction.rds')
-res = readRDS(save_res_fn)
+res_OUDwinSex = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.rds') %>% readRDS()
+res_SexWinOUD = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.SexWinOUD.rds') %>% readRDS()
 
 alpha = 0.05
-df = res %>% lapply(function(x){
-  x[x$adj.P.Val.Between < alpha, ]
+df = res_OUDwinSex %>% lapply(function(x){
+  x %>% 
+    ## calculate a number that gives both statistical signif + effect size
+    mutate(tmpF = -log10(adj.P.Val.Between_SexF) * logFC_SexF,
+           tmpM = -log10(adj.P.Val.Between_SexM) * logFC_SexM,
+           ## interaction_score is based on a mean-difference MA-plot
+           ## this will score genes (most different vs. most similar of OUD DEGs in M or F)
+           interaction_score = abs(tmpF - tmpM)/ abs(tmpM + tmpF)) %>% 
+    filter(adj.P.Val.Between_SexF < alpha | adj.P.Val.Between_SexM < alpha, 
+           interaction_score >= 1) %>% 
+    arrange(desc(interaction_score)) %>% 
+    dplyr::select(-c(tmpF, tmpM))
 }) %>% rbindlist()
 
 ###########################
 # 2) make some upset plots
 
-plot_fn = here(PLOTDIR, 'plots','sX.1_numDEG_bycelltype.upsetPlot.pdf')
+plot_fn = here(PLOTDIR, 'plots','sX.1_numInteraction_OUDwinSex.upsetPlot.pdf')
 pdf(plot_fn, height = 200/in2mm, width = 180/in2mm)
 
 ## neurons
@@ -91,47 +101,23 @@ dev.off()
 
 #####################################################################
 # 3) save the list of DEGs that are shared across multiple cell types
-df_neuron = df %>% filter(celltype %in% ct1) %>% 
-  arrange(adj.P.Val.Between) %>% group_by(gene) %>% 
-  mutate(
-    numcelltype = n(),
-    isSameFCdir = var(sign(logFC))==0,
-    celltype = paste(celltype, collapse = ', ')
-  ) %>% 
-  dplyr::relocate(celltype, .after = isSameFCdir) %>% 
-  top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
-  filter(numcelltype > 1) %>% 
-  arrange(desc(numcelltype), adj.P.Val.Between)
+df_neuron = df %>% filter(celltype %in% ct1)
+df_glia = df %>% filter(celltype %in% ct2)
 
-df_neuron$gene
-
-df_glia = df %>% filter(celltype %in% ct2) %>% 
-  arrange(adj.P.Val.Between) %>% group_by(gene) %>% 
-  mutate(
-    numcelltype = n(),
-    isSameFCdir = var(sign(logFC))==0,
-    celltype = paste(celltype, collapse = ', ')
-  ) %>% 
-  dplyr::relocate(celltype, .after = isSameFCdir) %>% 
-  top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
-  filter(numcelltype > 1) %>% 
-  arrange(desc(numcelltype), adj.P.Val.Between)
-df_glia$gene
-
-df_all = df %>% arrange(adj.P.Val.Between) %>% 
-  group_by(gene) %>% 
-  mutate(
-    numcelltype = n(),
-    isSameFCdir = var(sign(logFC))==0,
-    celltype = paste(celltype, collapse = ', ')
-  ) %>% 
-  dplyr::relocate(celltype, .after = isSameFCdir) %>% 
-  top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
-  filter(numcelltype > 1) %>% 
-  arrange(desc(numcelltype), adj.P.Val.Between)
-df_all$gene
-
-df_list = list('All_overlap' = df_all, 'Neuron_overlap' = df_neuron,  'Glia_overlap' = df_glia)
+df_list = list('All_overlap' = df,
+               'Neuron_overlap' = df_neuron, 
+               'Glia_overlap' = df_glia) %>% 
+  lapply(function(df){ 
+    df %>% group_by(gene) %>% 
+      mutate(
+        numCelltype = n(),
+        celltype = paste(celltype, collapse = ', ')
+      ) %>% 
+      dplyr::relocate(celltype, .after = everything()) %>% 
+      top_n(1, wt = interaction_score) %>% ungroup() %>% 
+      filter(numCelltype > 1) %>% 
+      arrange(desc(numCelltype), desc(interaction_score))
+  })
 
 save_overlap = here(PLOTDIR, 'tables','sX.2_table_numDEG_overlap_bySexInteraction.xlsx')
 df_list %>% writexl::write_xlsx(save_overlap)
