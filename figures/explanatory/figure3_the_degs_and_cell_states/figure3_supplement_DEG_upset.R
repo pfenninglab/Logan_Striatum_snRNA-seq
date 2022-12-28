@@ -91,49 +91,27 @@ dev.off()
 
 #####################################################################
 # 3) save the list of DEGs that are shared across multiple cell types
-df_neuron = df %>% filter(celltype %in% ct1) %>% 
-  arrange(adj.P.Val.Between) %>% group_by(gene) %>% 
-  mutate(
-    numCelltype = n(),
-    isSameFCdir = var(sign(logFC))==0,
-    celltype = paste(celltype, collapse = ', ')
-  ) %>% 
-  dplyr::relocate(celltype, .after = isSameFCdir) %>% 
-  top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
-  filter(numCelltype > 1) %>% 
-  arrange(desc(numCelltype), adj.P.Val.Between)
+df_neuron = df %>% filter(celltype %in% ct1)
+df_glia = df %>% filter(celltype %in% ct2)
+df_all = df %>% arrange(adj.P.Val.Between)
 
-df_neuron$gene
-
-df_glia = df %>% filter(celltype %in% ct2) %>% 
-  arrange(adj.P.Val.Between) %>% group_by(gene) %>% 
-  mutate(
-    numCelltype = n(),
-    isSameFCdir = var(sign(logFC))==0,
-    celltype = paste(celltype, collapse = ', ')
-  ) %>% 
-  dplyr::relocate(celltype, .after = isSameFCdir) %>% 
-  top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
-  filter(numCelltype > 1) %>% 
-  arrange(desc(numCelltype), adj.P.Val.Between)
-df_glia$gene
-
-df_all = df %>% arrange(adj.P.Val.Between) %>% 
-  group_by(gene) %>% 
-  mutate(
-    numCelltype = n(),
-    isSameFCdir = var(sign(logFC))==0,
-    celltype = paste(celltype, collapse = ', ')
-  ) %>% 
-  dplyr::relocate(celltype, .after = isSameFCdir) %>% 
-  top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
-  filter(numCelltype > 1) %>% 
-  arrange(desc(numCelltype), adj.P.Val.Between)
-df_all$gene
-
-df_list = list('All_overlap' = df_all, 
+df_list = list('All_overlap' = df_all,
                'Neuron_overlap' = df_neuron, 
-               'Glia_overlap' = df_glia)
+               'Glia_overlap' = df_glia) %>% 
+  lapply(function(df){ 
+   df %>% 
+      arrange(adj.P.Val.Between) %>% group_by(gene) %>% 
+      mutate(
+        numCelltype = n(),
+        isSameFCdir = var(sign(logFC))==0,
+        logFC = mean(logFC),
+        celltype = paste(celltype, collapse = ', ')
+      ) %>% 
+      dplyr::relocate(celltype, .after = isSameFCdir) %>% 
+      top_n(1, wt = -adj.P.Val.Between) %>% ungroup() %>% 
+      filter(numCelltype > 1) %>% 
+      arrange(desc(numCelltype), desc(abs(logFC)))
+  })
 
 save_overlap = here(PLOTDIR, 'tables','s3.2_table_numDEG_overlap_bycelltype.xlsx')
 df_list %>% writexl::write_xlsx(save_overlap)
