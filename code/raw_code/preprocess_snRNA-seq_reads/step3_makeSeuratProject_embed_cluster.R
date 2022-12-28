@@ -24,7 +24,7 @@ options(future.globals.maxSize = 150 * 1024^3)
 
 ###########################################################################
 # 1) load in indvidual snRNA-seq objects and create merged Seurat projects
-save_fn = list.files(here('data/raw_data/Seurat_objects'), 
+save_fn = list.files(here('data/raw_data/Seurat_objects'),
                      pattern = 'STARsolo_SoupX_rawCounts', full.names = T)
 names(save_fn) = basename(save_fn) %>% ss('STARsolo_SoupX_rawCounts_|.rds', 2)
 num_samples = length(save_fn)
