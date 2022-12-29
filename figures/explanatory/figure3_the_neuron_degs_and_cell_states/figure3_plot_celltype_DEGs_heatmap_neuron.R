@@ -19,7 +19,7 @@ library(cividis) #  devtools::install_github("marcosci/cividis")
 DATADIR='data/tidy_data/differential_expression_analysis'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure3_the_degs_and_cell_states'
+PLOTDIR='figures/explanatory/figure3_the_neuron_degs_and_cell_states'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################
@@ -59,6 +59,7 @@ df = here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sce2.rds'
          celltype_class = factor(celltype_class , c('Neuron', 'Glia')))
 df = df[colnames(z_clean), ]
 
+
 ##################################################################
 # 2) grab the DEGs split by the DEGs to plot in neurons or glia
 res = here(DATADIR, 'rdas', 'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.rds') %>% readRDS()
@@ -67,42 +68,45 @@ res_overlap_list = path %>% excel_sheets() %>% set_names() %>%
   map(read_excel, path = path) %>% lapply(function(x) x %>% filter(numCelltype >=3) )
 sapply(res_overlap_list, nrow)
 
+
 #############################################################
 # 3) set up the heatmap plot parameters ahead of time
 alpha = 0.05
-gp_title = gpar(fontsize = 4, fontface = 'bold'); gp_label = gpar(fontsize = 3)
-u0 = unit(0, "mm"); u1 = unit(1, "mm"); u3 = unit(3, "mm")
+gp_title = gpar(fontsize = 6, fontface = 'bold'); gp_label = gpar(fontsize = 4)
+u0 = unit(0, "mm"); u2 = unit(2, "mm"); u3 = unit(3, "mm")
 pal <- RColorBrewer::brewer.pal(11, 'PiYG')
 
 row_params = list(title_gp = gp_title, labels_gp = gp_label, 
-                  column_gap = u1, grid_height = u1, grid_width = u3, 
+                  column_gap = u2, grid_height = u2, grid_width = u3, 
                   legend_height = u3)
 column_params = list(title_gp = gp_title, labels_gp = gp_label, ncol = 1, 
                      gap = unit(0, "cm"), row_gap = u0, column_gap = u0, 
-                     grid_height = u1, grid_width = u1)
+                     grid_height = u2, grid_width = u2)
 
 ## make the legends
 lgd_zsc = Legend(col_fun = circlize::colorRamp2(seq(-4, 4,8/10 ), pal), 
                  title = "zscore", labels_gp = gp_label, gap = unit(0, "cm"), 
                  row_gap = u0, column_gap = u0, title_gp = gp_title,
-                 grid_height = u1, grid_width = u1, legend_height = unit(6, 'mm'))
+                 grid_height = u2, grid_width = u2, legend_height = unit(6, 'mm'))
 lgd_sex = Legend(labels = c('F', 'M'), title = "Sex", labels_gp = gp_label, 
                  legend_gp = gpar(fill =c('F' = 'black', 'M' = 'yellow')),
                  gap = unit(0, "cm"), row_gap = u0, column_gap = u0, legend_height = unit(6, 'mm'),
-                 grid_height = u1, grid_width = u1, title_gp = gp_title)
+                 grid_height = u2, grid_width = u2, title_gp = gp_title)
 lgd_oud = Legend(labels = names(dx_col), title = "OUD Dx", legend_height = unit(6, 'mm'),
                  legend_gp = gpar(fill = dx_col), labels_gp = gp_label,
                  gap = unit(0, "cm"), row_gap = u0, column_gap = u0, 
-                 grid_height = u1, grid_width = u1, title_gp = gp_title)
+                 grid_height = u2, grid_width = u2, title_gp = gp_title)
 
-## reorder the samples to show cell type
+
+####################################################################
+## 4) plot the genes most coordinatedly DE across neuronal subtypes
 df2 = df %>% arrange(celltype3, DSM.IV.OUD, Sex) %>% filter(celltype_class == 'Neuron')
 
 ## cell type legend
 lgd_cell = Legend(labels = names(typecolors[4:9]), title = "Cell type", 
                   legend_gp = gpar(fill = typecolors[4:9]), labels_gp = gp_label,
                   gap = unit(0, "cm"), row_gap = u0, column_gap = u0, legend_height = unit(6, 'mm'),
-                  grid_height = u1, grid_width = u1, title_gp = gp_title)
+                  grid_height = u2, grid_width = u2, title_gp = gp_title)
 lgd_list = packLegend(lgd_zsc, lgd_oud,  lgd_cell, lgd_sex, max_height = unit(80, 'mm'))
 
 ## set up the column annotation plot parameters
@@ -110,66 +114,31 @@ column_ha1 = HeatmapAnnotation(
   'Cell type' = df2$celltype3, 'OUD Dx' = df2$DSM.IV.OUD, 'Sex' = df2$Sex,
   col = list(`Cell type` = typecolors[4:9], `OUD Dx` = dx_col, 
              `Sex` = c('F' = 'black', 'M' = 'yellow')),
-  simple_anno_size = u1, annotation_name_gp= gp_title,
+  simple_anno_size = u2, annotation_name_gp= gp_title,
   annotation_legend_param = column_params, show_legend = c(F, F, F))
 
 ## 
 to_plot= res$Neuron %>% filter(adj.P.Val.Between < alpha) %>% 
-  filter(abs(logFC) > 1) %>% pull(gene) %>% unique()
+  filter(abs(logFC) > .5) %>% pull(gene) %>% unique()
 mat1 = z_clean[to_plot,rownames(df2)]
+
+## grab the genes enriched in the pathways
+pathways_genes = here(PLOTDIR,'tables', 'figure3_clustered_gsea_pathway_network.xlsx') %>% 
+  readxl::read_xlsx() %>% pull(leadingEdge) %>% sapply(str_split, ',') %>% unlist() %>% unique()
+
+ind_mark = which(to_plot %in% pathways_genes)
+row_ha = rowAnnotation(foo = anno_mark(at = ind_mark, labels = to_plot[ind_mark], 
+                                       link_width = unit(3, "mm"), labels_gp = gp_label))
 
 ## make the plot
 plot_fn = here(PLOTDIR,'plots', 'figure3_celltypes_DEG_heatmap.neuron.pdf')
 pdf(plot_fn, height = 80/in2mm, width = 121/in2mm, onefile = T)
 ht1 = Heatmap(mat1, col = pal, cluster_columns = T, 
-        show_column_names = F, row_names_gp = gp_label, 
-        column_dend_height = u3, row_dend_width = u3, 
-        show_heatmap_legend = F,
+        row_names_gp = gp_label, column_dend_height = u3, 
+        show_column_names = F, show_row_names = F, row_dend_width = u3, 
+        show_heatmap_legend = F, right_annotation = row_ha,
         top_annotation = column_ha1, heatmap_legend_param = row_params)
 
 draw(ht1, ht_gap = u0, annotation_legend_list = lgd_list)
-
 dev.off()
-
-
-
-
-
-########################################################
-## 4) plot all the glial DEGs w/ cell type overlaps
-df2 = df %>% arrange(celltype3, DSM.IV.OUD, Sex) %>% filter(celltype_class == 'Glia')
-
-## cell type legend
-lgd_cell = Legend(labels = names(typecolors)[c(10:12,14:15)], title = "Cell type", 
-                  legend_gp = gpar(fill =  typecolors[c(10:12,14:15)]), labels_gp = gp_label,
-                  gap = unit(0, "cm"), row_gap = u0, column_gap = u0, legend_height = unit(6, 'mm'),
-                  grid_height = u1, grid_width = u1, title_gp = gp_title)
-lgd_list = packLegend(lgd_zsc, lgd_oud,  lgd_cell, lgd_sex, max_height = unit(80, 'mm'))
-
-## set up the column and row annotation plot parameters
-column_ha2 = HeatmapAnnotation(
-  'Cell type' = df2$celltype3, 'OUD Dx' = df2$DSM.IV.OUD, 'Sex' = df2$Sex,
-  col = list(`Cell type` =  typecolors[c(10:12,14:15)], `OUD Dx` = dx_col, 
-             `Sex` = c('F' = 'black', 'M' = 'yellow')),
-  simple_anno_size = u1, annotation_name_gp= gp_title,
-  annotation_legend_param = column_params, show_legend = c(F, F, F))
-
-to_plot3= res$Glia %>% filter(adj.P.Val.Between < alpha) %>% 
-  filter(abs(logFC) > 1) %>% pull(gene) %>% unique()
-mat3 = z_clean[to_plot3,rownames(df2)]
-
-## make the plot
-plot_fn = here(PLOTDIR,'plots', 's3.7_celltypes_DEG_heatmap.Glia.pdf')
-pdf(plot_fn, height = 150/in2mm, width = 121/in2mm, onefile = T)
-ht2 = Heatmap(mat3, col = pal,name = "zscore", cluster_columns = T, 
-        column_dend_height = u3, row_dend_width = u3,
-        show_column_names = F, row_names_gp = gp_label, 
-        show_heatmap_legend = F,
-        top_annotation = column_ha2, heatmap_legend_param = row_params)
-
-draw(ht2, ht_gap = u0, annotation_legend_list = lgd_list)
-
-dev.off()
-
-
 

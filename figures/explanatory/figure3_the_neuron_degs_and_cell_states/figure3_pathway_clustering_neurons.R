@@ -15,7 +15,7 @@ options(stringsAsFactors = F)
 options(repr.plot.width=11, repr.plot.height=8.5)
 source(here('code/final_code/Rutils/igraph_pathway_clustering.R'))
 
-FIGDIR='figures/explanatory/figure3_the_degs_and_cell_states'
+FIGDIR='figures/explanatory/figure3_the_neuron_degs_and_cell_states'
 dir.create(here(FIGDIR, 'plots', 'gsea'), recursive = T, showWarnings = F)
 dir.create(here(FIGDIR, 'tables'), recursive = T, showWarnings = F)
 

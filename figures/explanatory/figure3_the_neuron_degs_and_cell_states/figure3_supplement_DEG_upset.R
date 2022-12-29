@@ -19,7 +19,7 @@ options(repr.plot.width=11, repr.plot.height=8.5)
 DATADIR='data/tidy_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure3_the_degs_and_cell_states'
+PLOTDIR='figures/explanatory/figure3_the_neuron_degs_and_cell_states'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################

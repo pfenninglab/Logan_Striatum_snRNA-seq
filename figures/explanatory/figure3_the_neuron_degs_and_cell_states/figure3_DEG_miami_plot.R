@@ -13,7 +13,7 @@ library(here)
 DATADIR='data/tidy_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure3_the_degs_and_cell_states'
+PLOTDIR='figures/explanatory/figure3_the_neuron_degs_and_cell_states'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################
@@ -42,7 +42,6 @@ rdasDir =file.path(DATADIR,'differential_expression_analysis', 'rdas')
 save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.rds')
 res = readRDS(save_res_fn)
 
-# res_neuron = res[grep('All|^D|euron', names(res), value = T)]
 
 ######################################
 ## 2) count DEGs within each grouping
@@ -73,28 +72,12 @@ plot_fn = here(PLOTDIR,'plots', 'figure3_mumDEG_celltypes_miamiPlot_neuron.pdf')
 pdf(plot_fn, height = 40/in2mm, width = 121/in2mm)
 ggplot(df_long, aes(x = celltype, y = abs(numDEG), fill = celltype))+
   geom_bar(stat = 'identity')+
-  geom_text(size = 1.5, aes(label=abs(numDEG)),vjust="inward") + 
+  geom_text(size = 2, aes(label=abs(numDEG)),vjust="inward") + 
   facet_nested( ~ Direction + celltype_class, scales = 'free', space = 'free')+
   scale_fill_manual(values = typecolors) + my_theme + 
   scale_y_continuous(labels = abs) + # so negative sign doesn't show
   ylab("# of DEGs, FDR < 0.05") + 
-  theme(legend.position = 'none', axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
+  theme(legend.position = 'none',  axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
 dev.off()
 
-
-
-# plot_fn = here(PLOTDIR,'plots', 'figure3_mumDEG_celltypes_miamiPlot.pdf')
-# pdf(plot_fn, height = 70/in2mm, width = 121/in2mm)
-# ggplot(df_long, aes(x = celltype, y = numDEG, fill = celltype))+
-#   geom_bar(stat = 'identity')+
-#   geom_text(size = 1.5, aes(label=abs(numDEG)), hjust="inward") + 
-#   facet_grid( celltype_class ~ Direction, scales = 'free', space = 'free')+
-#   scale_fill_manual(values = typecolors) +
-#   scale_x_discrete(limits=rev) +
-#   scale_y_continuous(labels = abs) + # so negative sign doesn't show
-#   my_theme + coord_flip() + 
-#   ylab("# of DEGs, FDR < 0.05") + 
-#   theme(legend.position = 'none', 
-#         axis.title.y = element_blank(), 
-#         axis.text.x = element_blank())
-# dev.off()
