@@ -105,7 +105,7 @@ trim_edges = function(net, target_degree = 0.15){
   degree = igraph::degree(net, normalized = T) %>% mean()
   while( degree > target_degree ){
     cut.off <- quantile(all_weights, quant) ## keep top NN% of edges
-    net2 <- delete_edges(net, E(net)[E(net)$overlap_ratio<cut.off]) #remove edges below cutoff
+    net2 <- delete_edges(net2, E(net2)[E(net2)$overlap_ratio<cut.off]) #remove edges below cutoff
     degree = igraph::degree(net2, normalized = T) %>% mean()
     message(paste('Avg Degree is', signif(degree, 3)))
     quant = quant + 0.01
