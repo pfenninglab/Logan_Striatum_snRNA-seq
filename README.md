@@ -1,4 +1,4 @@
-# Logan_BU_Striatum_snRNA-seq
+# Logan_Striatum_snRNA-seq
 Single cell transcriptomics analyses in the striatum of patients with OUD
 
 # Methods
