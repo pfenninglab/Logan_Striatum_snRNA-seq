@@ -15,7 +15,7 @@ library(VennDiagram)
 DATADIR='data/tidy_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figureX_sex_interaction_degs'
+PLOTDIR='figures/explanatory/figure5_sex_interaction_degs'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 in2mm<-25.4
 
@@ -82,10 +82,10 @@ venn_list = split(res, f = res$celltype) %>%
 
 
 set_cols =  c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
-file_name = here(PLOTDIR, 'plots', paste0('figureX_sexInteraction_DEG_4-way_vennDiagram.pdf'))
+file_name = here(PLOTDIR, 'plots', paste0('figure5_sexInteraction_DEG_4-way_vennDiagram.pdf'))
 pdf(file_name, height = 20/in2mm, width = 20/in2mm)
 for (cell in names(venn_list)){
-  file_name = here(PLOTDIR, 'plots', paste0('figureX_sexInteraction_DEG_4-way_vennDiagram.', cell, '.pdf'))
+  file_name = here(PLOTDIR, 'plots', paste0('figure5_sexInteraction_DEG_4-way_vennDiagram.', cell, '.pdf'))
   pdf(file_name, height = 20/in2mm, width = 20/in2mm)
   display_venn( venn_list[[cell]],  fill = set_cols, main = cell, lty = 'blank',
                 height = 20/in2mm, width = 20/in2mm, cex = .3, cat.cex = .25,  

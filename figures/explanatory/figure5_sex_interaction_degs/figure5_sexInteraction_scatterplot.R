@@ -12,7 +12,7 @@ library(here)
 DATADIR='data/tidy_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figureX_sex_interaction_degs'
+PLOTDIR='figures/explanatory/figure5_sex_interaction_degs'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################

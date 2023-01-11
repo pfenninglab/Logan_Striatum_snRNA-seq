@@ -14,9 +14,8 @@ library(Matrix.utils)
 DATADIR='data/tidy_data/differential_expression_analysis'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figureX_sex_interaction_degs'
+PLOTDIR='figures/explanatory/figure5_sex_interaction_degs'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
-source(here('code','final_code','Rutils', 'plot_logCPM_pseudobulk.R'))
 
 ###################################
 # 0) pre-set plotting aesthetics
@@ -35,7 +34,7 @@ othertypes_col = othertypes_col[-c(1:4)]
 typecolors = c(othertypes_col[1:3], subtypes_col, othertypes_col[c(10, 4:9)])
 
 in2mm<-25.4
-my_theme = theme_classic(base_size = 6)
+my_theme = theme_classic(base_size = 5)
 
 #########################################################
 # 1) grab the phenotype data & the cleaned gene log2 matrix
@@ -62,7 +61,7 @@ all(colnames(y_clean) == rownames(df)) # should be true
 # 2) grab the DEGs split by the DEGs to plot in neurons or glia
 alpha = 0.05
 
-path = here(PLOTDIR, 'tables','sX.2_table_numDEG_overlap_bySexInteraction.xlsx')
+path = here(PLOTDIR, 'tables','s5.2_table_numDEG_overlap_bySexInteraction.xls5')
 res_overlap_list = path %>% excel_sheets() %>% set_names() %>% 
   map(read_excel, path = path) %>% lapply(function(x) x %>% filter(numCelltype >=3) )
 sapply(res_overlap_list, nrow)
@@ -86,7 +85,7 @@ res_signif = res %>% rbindlist() %>% dplyr::select(-contains('dir')) %>%
                                 adj.P.Val.Between < 0.01 ~ '**', 
                                 adj.P.Val.Between < alpha ~ '*'), 
          Y_max = y_summary[paste0(celltype3,'.',gene), 'Y_max']  + 
-           2.5 * (y_summary[paste0(celltype3,'.',gene), 'Y_sd']),
+           2 * (y_summary[paste0(celltype3,'.',gene), 'Y_sd']),
          celltype_class = case_when(grepl('^D|^Int', celltype3)~ 'Neuron',  
                                     TRUE ~ 'Glia'), 
          celltype_class = factor(celltype_class , c('Neuron', 'Glia'))) %>% 
@@ -97,8 +96,38 @@ res_signif = res %>% rbindlist() %>% dplyr::select(-contains('dir')) %>%
 dir.create(here(PLOTDIR,'plots','deg_plots'), showWarnings = F)
 
 # plot all the neuronal DEGs w/ >=2 cell type overlaps
+to_plot= c('FKBP5')
+for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/8))){
+  plot_fn = here(PLOTDIR,'plots', paste0('figure5.sexInteraction_celltypes_DEG_boxPlot.',g,'.pdf'))
+  pdf(plot_fn, height = 40/in2mm, width = 55/in2mm)
+  df2 = cbind(df, Y = y_clean[g,rownames(df)])
+  p = ggplot(df2, aes(x = celltype3, y = Y)) + 
+    geom_boxplot(outlier.shape = NA, aes(fill = DSM.IV.OUD)) + 
+    geom_point( alpha = .7, size = .5, position = position_jitterdodge(),
+                aes(color = DSM.IV.OUD)) + 
+    geom_text(data =  res_signif %>% filter(gene %in% g),
+              size = 2, hjust = 'inside', aes(y = Y_max, label = annotation, Sex = Sex)) +
+    facet_grid(Sex ~ celltype_class, scales = 'free', space = 'free') + 
+    my_theme + scale_fill_npg() + 
+    ylab(paste(g, 'log2(CPM) | SVs')) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))+
+    theme(legend.position = 'none', 
+          legend.spacing.y = unit(2, 'cm'), 
+          legend.key.size = unit(.5, "cm")) 
+  print(p)
+  dev.off()
+}
+
+
+
+#############################################################
+## 5) make the supplemental plots of the log2CPMs by cell type and OUD dx
+
+
+# plot all the neuronal DEGs w/ >=2 cell type overlaps
 to_plot= res_overlap_list[['All_overlap']] %>% pull(gene)
-plot_fn = here(PLOTDIR,'plots', 'sX.4_celltypes_DEG_boxPlot.All.pdf')
+plot_fn = here(PLOTDIR,'plots', 's5.4_celltypes_DEG_boxPlot.All.pdf')
 pdf(plot_fn, height = 250/in2mm, width = 180/in2mm, onefile = T)
 for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/8))){
   df2 = df %>% cbind( t(y_clean[g,rownames(df)]) ) %>% 
@@ -123,7 +152,7 @@ dev.off()
 
 # plot all the neuronal DEGs w/ >=2 cell type overlaps
 to_plot= res_overlap_list[['Neuron_overlap']] %>% pull(gene)
-plot_fn = here(PLOTDIR,'plots', 'sX.5_celltypes_DEG_boxPlot.Neuron.pdf')
+plot_fn = here(PLOTDIR,'plots', 's5.5_celltypes_DEG_boxPlot.Neuron.pdf')
 pdf(plot_fn, height = 250/in2mm, width = 180/in2mm, onefile = T)
 for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/12))){
   df2 = df %>% cbind( t(y_clean[g,rownames(df)]) ) %>% 
@@ -151,7 +180,7 @@ dev.off()
 
 # plot all the neuronal DEGs w/ >=2 cell type overlaps
 to_plot= res_overlap_list[['Glia_overlap']] %>% pull(gene)
-plot_fn = here(PLOTDIR,'plots', 'sX.6_celltypes_DEG_boxPlot.Glia.pdf')
+plot_fn = here(PLOTDIR,'plots', 's5.6_celltypes_DEG_boxPlot.Glia.pdf')
 pdf(plot_fn, height = 200/in2mm, width = 180/in2mm, onefile = T)
 for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/12))){
   df2 = df %>% cbind( t(y_clean[g,rownames(df)]) ) %>% 

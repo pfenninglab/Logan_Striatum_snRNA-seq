@@ -12,7 +12,7 @@ library(here)
 DATADIR='data/tidy_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figureX_sex_interaction_degs'
+PLOTDIR='figures/explanatory/figure5_sex_interaction_degs'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################
@@ -73,7 +73,7 @@ df_long = df %>% pivot_longer(cols = c('Male.Unique', 'Female.Unique'), names_to
 
 ##########################
 ## 2) make the miami plot
-plot_fn = here(PLOTDIR,'plots', 'figureX_mumDEG_sexInteraction_miamiPlot.pdf')
+plot_fn = here(PLOTDIR,'plots', 'figure5_mumDEG_sexInteraction_miamiPlot.pdf')
 pdf(plot_fn, height = 80/in2mm, width = 50/in2mm)
 ggplot(df_long, aes(x = celltype, y = numDEG, fill = celltype))+
   geom_bar(stat = 'identity')+

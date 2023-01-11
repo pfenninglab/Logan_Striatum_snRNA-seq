@@ -19,7 +19,7 @@ library(cividis) #  devtools::install_github("marcosci/cividis")
 DATADIR='data/tidy_data/differential_expression_analysis'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figureX_sex_interaction_degs'
+PLOTDIR='figures/explanatory/figure5_sex_interaction_degs'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################
@@ -117,7 +117,7 @@ to_plot= res_overlap_list$Neuron %>% pull(gene) %>% unique()
 mat1 = z_clean[to_plot,rownames(df2)]
 
 ## make the plot
-plot_fn = here(PLOTDIR,'plots', 'figureX_sexInteraction_DEG_heatmap.neuron.pdf')
+plot_fn = here(PLOTDIR,'plots', 'figure5_sexInteraction_DEG_heatmap.neuron.pdf')
 pdf(plot_fn, height = 50/in2mm, width = 130/in2mm, onefile = T)
 ht1 = Heatmap(mat1, col = pal, cluster_columns = T, 
               show_column_names = F, row_names_gp = gp_label, 
@@ -155,7 +155,7 @@ to_plot3= res_overlap_list$Glia %>% filter(numCelltype>=4) %>% pull(gene) %>% un
 mat3 = z_clean[to_plot3,rownames(df2)]
 
 ## make the plot
-plot_fn = here(PLOTDIR,'plots', 'figureX_sexInteraction_DEG_heatmap.Glia.pdf')
+plot_fn = here(PLOTDIR,'plots', 'figure5_sexInteraction_DEG_heatmap.Glia.pdf')
 pdf(plot_fn, height = 60/in2mm, width = 130/in2mm, onefile = T)
 ht2 = Heatmap(mat3, col = pal,name = "zscore", cluster_columns = T, 
               column_dend_height = u3, row_dend_width = u3,
