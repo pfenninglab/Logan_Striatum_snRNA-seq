@@ -19,7 +19,7 @@ library(cividis) #  devtools::install_github("marcosci/cividis")
 DATADIR='data/tidy_data/differential_expression_analysis'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure4_the_glia_degs_and_cell_states'
+PLOTDIR='figures/explanatory/figure2_the_glia_degs_and_cell_states'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################
@@ -122,7 +122,7 @@ to_plot3= res$Glia %>% filter(adj.P.Val.Between < alpha) %>%
 mat3 = z_clean[to_plot3,rownames(df2)]
 
 ## grab the genes enriched in the pathways
-pathways_genes = here(PLOTDIR,'tables', 'figure4_clustered_glia_gsea_pathway_network.xlsx') %>% 
+pathways_genes = here(PLOTDIR,'tables', 'figure2_clustered_glia_gsea_pathway_network.xlsx') %>% 
   readxl::read_xlsx() %>% pull(leadingEdge) %>% sapply(str_split, ',') %>% unlist() %>% unique()
 
 ind_mark = which(to_plot3 %in% pathways_genes)
@@ -130,7 +130,7 @@ row_ha = rowAnnotation(foo = anno_mark(at = ind_mark, labels = to_plot3[ind_mark
                                    link_width = unit(3, "mm"), labels_gp = gp_label))
 
 ## make the plot
-plot_fn = here(PLOTDIR,'plots', 'figure4_celltypes_DEG_heatmap.Glia.pdf')
+plot_fn = here(PLOTDIR,'plots', 'figure2_celltypes_DEG_heatmap.Glia.pdf')
 pdf(plot_fn, height = 70/in2mm, width = 121/in2mm, onefile = T)
 ht2 = Heatmap(mat3, col = pal,name = "zscore", cluster_columns = T, 
         column_dend_height = u3, row_dend_width = u3,

@@ -15,7 +15,7 @@ library(Matrix.utils)
 DATADIR='data/tidy_data/differential_expression_analysis'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure4_the_glia_degs_and_cell_states'
+PLOTDIR='figures/explanatory/figure2_the_glia_degs_and_cell_states'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 source(here('code','final_code','Rutils', 'plot_logCPM_pseudobulk.R'))
 

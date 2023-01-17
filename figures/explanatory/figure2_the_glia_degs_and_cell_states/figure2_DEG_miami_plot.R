@@ -13,7 +13,7 @@ library(here)
 DATADIR='data/tidy_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure4_the_glia_degs_and_cell_states'
+PLOTDIR='figures/explanatory/figure2_the_glia_degs_and_cell_states'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 ###################################
@@ -69,7 +69,7 @@ df_long = df %>% pivot_longer(cols = c('Up.Regulated', 'Down.Regulated'), names_
 
 ##########################
 ## 2) make the miami plot
-plot_fn = here(PLOTDIR,'plots', 'figure4_mumDEG_celltypes_miamiPlot_glia.pdf')
+plot_fn = here(PLOTDIR,'plots', 'figure2_mumDEG_celltypes_miamiPlot_glia.pdf')
 pdf(plot_fn, height = 40/in2mm, width = 121/in2mm)
 ggplot(df_long, aes(x = celltype, y = abs(numDEG), fill = celltype))+
   geom_bar(stat = 'identity')+

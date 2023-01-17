@@ -15,7 +15,7 @@ options(stringsAsFactors = F)
 options(repr.plot.width=11, repr.plot.height=8.5)
 source(here('code/final_code/Rutils/igraph_pathway_clustering.R'))
 
-FIGDIR='figures/explanatory/figure4_the_glia_degs_and_cell_states'
+FIGDIR='figures/explanatory/figure2_the_glia_degs_and_cell_states'
 dir.create(here(FIGDIR, 'plots', 'gsea'), recursive = T, showWarnings = F)
 dir.create(here(FIGDIR, 'tables'), recursive = T, showWarnings = F)
 
@@ -69,7 +69,7 @@ V(net_neg)$color= col_neg(V(net_neg)$NES)
 net_pos.sp = trim_edges(net_pos, target_degree = .2)
 clp_pos <- cluster_leiden(net_pos.sp, resolution_parameter = 1.5, 
                       objective_function = 'modularity', n_iterations = 10)
-pdf(here(FIGDIR, 'plots','gsea','figure4_clustered_glia_pos_gsea_pathway_network.pdf'))
+pdf(here(FIGDIR, 'plots','gsea','figure2_clustered_glia_pos_gsea_pathway_network.pdf'))
 plot(clp_pos, net_pos.sp, vertex.label=NA)
 dev.off()
 
@@ -83,7 +83,7 @@ V(net_pos_list$net)$label.cex = .5
 net_neg.sp = trim_edges(net_neg, target_degree = .15)
 clp_neg <- cluster_leiden(net_neg.sp, resolution_parameter = 1, 
                       objective_function = 'modularity',  n_iterations = 10)
-pdf(here(FIGDIR, 'plots','gsea','figure4_clustered_glia_neg_gsea_pathway_network.pdf'))
+pdf(here(FIGDIR, 'plots','gsea','figure2_clustered_glia_neg_gsea_pathway_network.pdf'))
 plot(clp_neg, net_neg.sp, vertex.label=NA)
 dev.off()
 
@@ -101,7 +101,7 @@ to_label = vert.meta %>% clean_pathways()
 to_label_num = vert.meta %>% dplyr::select(name, mem) %>% deframe()
 
 ## make sets of 3 plots for the current POSITIVE network
-prefix_pos = here(FIGDIR, 'plots','gsea','figure4_clustered_glia_pos_gsea_pathway_network')
+prefix_pos = here(FIGDIR, 'plots','gsea','figure2_clustered_glia_pos_gsea_pathway_network')
 plot_clusterings_3set(net_pos_list, prefix_pos, to_label, to_label_num, 
                       height = 60/in2mm, width = 60/in2mm)
 plot_pt_legend(V(net_neg_list$net)$size, prefix_pos, height = 20/in2mm, width = 10/in2mm)
@@ -110,7 +110,7 @@ plot_col_legend(prefix = prefix_pos, col = col_pos, fontsize = 5,
 
 
 ## make sets of 3 plots for the current NEGATIVE network
-prefix_neg = here(FIGDIR, 'plots','gsea','figure4_clustered_glia_neg_gsea_pathway_network')
+prefix_neg = here(FIGDIR, 'plots','gsea','figure2_clustered_glia_neg_gsea_pathway_network')
 plot_clusterings_3set(net_neg_list, prefix_neg, to_label, to_label_num, 
                       height = 60/in2mm, width = 60/in2mm)
 plot_col_legend(prefix = prefix_neg, col = col_neg, fontsize = 5,
@@ -122,4 +122,4 @@ curenrich_clustered = gsea_df %>%
   mutate(cluster_number = to_label_num[ paste0(celltype, '#', pathway)]) %>% 
   arrange(cluster_number, padj) %>%
   relocate(cluster_number, pathway, description,.after = 'celltype') %>% 
-  writexl::write_xlsx(here(FIGDIR, 'tables','figure4_clustered_glia_gsea_pathway_network.xlsx'))
+  writexl::write_xlsx(here(FIGDIR, 'tables','figure2_clustered_glia_gsea_pathway_network.xlsx'))
