@@ -138,6 +138,9 @@ y <- y[isexpr, , keep.lib.size = FALSE]
 dim(y) # 20313   210
 
 ## filter out ribosomal genes, filter out mitochondria genes
+drop.genes <- grep("^RP[SL]|^MT-",rownames(y), value = T, invert = F)
+drop.genes %>% sort %>% data.frame() %>% 
+  write_tsv(here(DATADIR, 'tables', 'dropped_mito_ribo_genes.tsv'))
 keep.genes <- grep("^RP[SL]|^MT-",rownames(y), value = T, invert = T)
 y = y[keep.genes, , keep.lib.size = FALSE]
 dim(y) #  20203   210
