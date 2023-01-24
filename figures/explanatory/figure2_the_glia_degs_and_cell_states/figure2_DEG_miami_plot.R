@@ -35,6 +35,7 @@ typecolors = c(othertypes_col[1:3], subtypes_col, othertypes_col[c(10, 4:9)])
 
 in2mm<-25.4
 my_theme = theme_classic(base_size = 6)
+alpha = 0.05
 
 #################################################
 # 1) load in the DEG table from the big analyses
@@ -42,17 +43,26 @@ rdasDir =file.path(DATADIR,'differential_expression_analysis', 'rdas')
 save_res_fn = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.rds')
 res = readRDS(save_res_fn)
 
-# res_neuron = res[grep('All|^D|euron', names(res), value = T)]
+# number of cell types
+length(res) 
+
+# number of unique genes that are DEGs across any cell type
+res %>% lapply(function(x) x %>% filter(adj.P.Val.Between < alpha)) %>% 
+  rbindlist() %>% filter(!duplicated(gene)) %>% nrow()
+
 
 ######################################
 ## 2) count DEGs within each grouping
-alpha = 0.05
 df = res %>% lapply(function(x){
   out = data.frame(numDiff = sum(x$adj.P.Val.Between < alpha, na.rm = T), 
                    "Up.Regulated" = sum(x$adj.P.Val.Between < alpha & x$logFC > 0,  na.rm = T),
                    "Down.Regulated" = sum(x$adj.P.Val.Between < alpha & x$logFC < 0,  na.rm = T))
   return(out)
 }) %>% data.table::rbindlist(idcol = 'celltype')
+
+## mean and SE of DEGs per cell type
+df %>% pull(numDiff) %>% mean()
+df %>% pull(numDiff) %>% sd() /sqrt(length(res))
 
 df_long = df %>% pivot_longer(cols = c('Up.Regulated', 'Down.Regulated'), names_to = 'Direction', 
                               values_to = 'numDEG') %>% 

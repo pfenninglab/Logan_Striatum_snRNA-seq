@@ -41,6 +41,12 @@ readxl::excel_sheets(path = xl_path)
 
 ## read in the comparison of OUD vs. CTL averaged across all subtypes
 gsea_list <- readxl::read_excel(path = xl_path, sheet = 'All')
+
+table(gsea_list$celltype) %>% mean()
+table(gsea_list$celltype) %>% sd()/sqrt(14)
+
+gsea_list %>% filter(!duplicated(pathway)) %>% nrow()
+
 gsea_df = gsea_list%>% filter(celltype %in% glia_types)
   
 ## subset by positive and negative NES to create two pathway networks
