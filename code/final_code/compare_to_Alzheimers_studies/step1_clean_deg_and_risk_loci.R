@@ -12,31 +12,51 @@ DATADIR='data/tidy_data/compare_to_Alzheimers_studies'
 dir.create(here(DATADIR, 'rdas'), recursive = T, showWarnings = F)
 
 main_types = c('Neuron', 'Astrocytes', 'Microglia','Oligos',  'Oligos_Pre')
-
-################################################################################
-## 1) read in the Blanchard2022_41586_2022_5439_MOESM17_ESM.xlsx APOE-4 study DEGs
 rename = c('Ast' = 'Astrocytes', 'Ex' = 'Neuron', 'In' = 'Neuron', 
            'Mic' = 'Microglia', 'Oli' = 'Oligos', 'Opc' = 'Oligos_Pre')
 
-df_list = here(DATADIR, 'tables', 'Blanchard2022_41586_2022_5439_MOESM17_ESM.xlsx') %>% 
+################################################################################
+## 1) read in the Blanchard2022_41586_2022_5439_MOESM17_ESM.xlsx APOE-4 study DEGs
+
+## Table S15 is snRNA_seq of APOE e4 vs. e3 alleles
+df_list1 = here(DATADIR, 'tables', 'Blanchard2022_41586_2022_5439_MOESM17_ESM_S15.xlsx') %>% 
   readxl::read_xlsx() %>% 
-  mutate(celltype = rename[celltype], comparison = 'APOE4_vs_APOE3', 
+  mutate(celltype = rename[celltype], comparison = 'APOE4_vs_APOE3_snRNA', 
          group = paste0(celltype, '#', comparison)) %>% 
-  split(f = .$group)
-names(df_list)
+  split(f = .$group) %>%  lapply(function(x){
+    x %>%  arrange(P.Value) %>% filter(!duplicated(gene))
+  })
+names(df_list1)
+saveRDS(df_list1, here(DATADIR, 'rdas', 'Blanchard2022_APOE_allele_celltype_DEG_list.rds'))
 
-## combined cortical excitatory and inhibitory neurons w/ averaging
-df_list$`Neuron#APOE4_vs_APOE3` = df_list$`Neuron#APOE4_vs_APOE3` %>% 
-  group_by(gene) %>% 
-  mutate(logFC = mean(logFC), 
-         AveExpr = mean(AveExpr), 
-         t = mean(t), B = mean(B),
-         P.Value = min(P.Value), 
-         adj.P.Val = min(adj.P.Val)) %>% 
-  ungroup() %>% filter(!duplicated(gene))
-sapply(df_list, nrow)
+## Table S12 is RNA_seq of APOE e4 vs. e3 alleles in iPSC oligodendrocytes
+df_list2= here(DATADIR, 'tables', 'Blanchard2022_41586_2022_5439_MOESM14_ESM_S12.csv') %>% 
+  read_csv() %>% filter(status =='OK') %>% 
+  mutate(celltype = 'Oligos', comparison = 'APOE4_vs_APOE3_iPSC', 
+         group = paste0(celltype, '#', comparison)) %>% 
+  split(f = .$group) %>%  lapply(function(x){
+    x %>%  arrange(p_value) %>% filter(!duplicated(gene))
+  })
+names(df_list2)
+saveRDS(df_list2, here(DATADIR, 'rdas', 'Blanchard2022_APOE_allele_iPSC_Oligo_DEG_list.rds'))
 
-saveRDS(df_list, here(DATADIR, 'rdas', 'Blanchard2022_APOE_allele_celltype_DEG_list.rds'))
+## Table S13 is RNA_seq of APOE e4 vs. e3 alleles in postmortem oligodendrocytes, by Wilcoxon
+df_list3= here(DATADIR, 'tables', 'Blanchard2022_41586_2022_5439_MOESM15_ESM_S13.csv') %>% 
+  read_csv() %>% dplyr::rename('gene' = 'feature') %>% 
+  mutate(celltype = 'Oligos', comparison = make.names(grp), 
+         comparison = gsub('\\.\\.\\.', '+', comparison),
+         comparison = gsub('\\.\\.', '_', comparison),
+         comparison = gsub('\\.only|\\.$', '', comparison),
+         comparison = gsub('\\.vs\\.', '_vs_', comparison),
+         comparison = gsub('APOE34\\+APOE44_vs_APOE33_AD\\.and\\.nonAD', 
+                           'APOE4_vs_APOE3', comparison),
+         comparison = paste0(comparison, '_PMB'),
+         group = paste0(celltype, '#', comparison)) %>% 
+  split(f = .$group) %>%  lapply(function(x){
+    x %>% arrange(pval) %>% filter(!duplicated(gene))
+  })
+names(df_list3)
+saveRDS(df_list3, here(DATADIR, 'rdas', 'Blanchard2022_APOE_PMB_Oligo_DEG_list.rds'))
 
 ##################################################################################
 ## 2) read in the Mathys2018_41586_2019_1195_MOESM4_ESM.xlsx AD pathology vs. non-path data
@@ -58,7 +78,7 @@ names(df_list) = comparisons
 df_list = df_list %>% lapply(function(x){ names(x) = c('celltype', cols); return(x)}) %>% 
   rbindlist(idcol = 'comparison') %>% filter(complete.cases(.)) %>% 
   mutate(group = paste0(celltype, '#', comparison)) %>% 
-  dplyr::select(group, celltype, gene, mean.1, mean.2, MixedModel.p, MixedModel.z) %>% 
+  dplyr::select(group, celltype, gene, mean.1, mean.2, IndModel.adj.pvals, IndModel.FC) %>% 
   split(f = .$group)
 
 ## merge the neuron types together w/ averaging
