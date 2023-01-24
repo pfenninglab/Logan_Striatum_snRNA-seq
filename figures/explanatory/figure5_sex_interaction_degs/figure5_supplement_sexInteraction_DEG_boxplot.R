@@ -61,7 +61,7 @@ all(colnames(y_clean) == rownames(df)) # should be true
 # 2) grab the DEGs split by the DEGs to plot in neurons or glia
 alpha = 0.05
 
-path = here(PLOTDIR, 'tables','s5.2_table_numDEG_overlap_bySexInteraction.xls5')
+path = here(PLOTDIR, 'tables','s5.2_table_numDEG_overlap_bySexInteraction.xlsx')
 res_overlap_list = path %>% excel_sheets() %>% set_names() %>% 
   map(read_excel, path = path) %>% lapply(function(x) x %>% filter(numCelltype >=3) )
 sapply(res_overlap_list, nrow)
@@ -96,8 +96,8 @@ res_signif = res %>% rbindlist() %>% dplyr::select(-contains('dir')) %>%
 dir.create(here(PLOTDIR,'plots','deg_plots'), showWarnings = F)
 
 # plot all the neuronal DEGs w/ >=2 cell type overlaps
-to_plot= c('FKBP5')
-for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/8))){
+to_plot= c('FKBP5', 'SLC17A6')
+for(g in to_plot){
   plot_fn = here(PLOTDIR,'plots', paste0('figure5.sexInteraction_celltypes_DEG_boxPlot.',g,'.pdf'))
   pdf(plot_fn, height = 40/in2mm, width = 55/in2mm)
   df2 = cbind(df, Y = y_clean[g,rownames(df)])
