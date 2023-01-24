@@ -4,6 +4,7 @@ options(stringsAsFactors = F)
 
 ## packages for data table processing/plotting
 library(tidyverse)
+library(tidymodels)
 library(rcartocolor)
 library(ggsci)
 
@@ -11,7 +12,6 @@ library(ggsci)
 library(Seurat)
 library(SeuratDisk)
 library(future)
-
 library(here)
 
 DATADIR='data/raw_data'
@@ -50,6 +50,25 @@ df2 = here('data/tidy_data/tables',
   pivot_longer(cols = c(`# nuclei`, `% passing QC`, numTotal), 
                names_to = 'metric')
 
+## get descriptive numbers
+df2 %>% group_by(Region, metric) %>% 
+  summarise(num = mean(value),
+            se = sd(value)/sqrt(n()))
+
+## t-test of the differences
+df2 %>% nest(data = -c(Region, metric)) %>% 
+  mutate(
+    test = map(data, ~ t.test(value~DSM.IV.OUD, data = .x)), # S3 list-col
+    tidied = map(test, tidy)
+  ) %>% 
+  unnest(cols = tidied) %>% 
+  select(-data, -test) %>% as.data.frame() %>% 
+  writexl::write_xlsx(  
+    here(PLOTDIR, 'tables', 'fig1_violin_Ncell_propCells_per_sample.xlsx')
+)
+
+
+## plot the 
 fig1_violin_propCells_per_sample_fn = 
   here(PLOTDIR, 'plots', 'fig1_violin_Ncell_propCells_per_sample.pdf')
 
@@ -74,6 +93,23 @@ df3 = obj_merged[[]] %>%
             `Avg. UMI` = mean(nCount_RNA)) %>% 
   pivot_longer(cols = c(`Avg. Genes`, `Avg. UMI`), 
                names_to = 'metric')
+
+## get descriptive numbers
+df3 %>% group_by(metric) %>% 
+  summarise(num = mean(value),
+            se = sd(value)/sqrt(n()))
+
+## t-test of the differences
+df3 %>% nest(data = -c(Region, metric)) %>% 
+  mutate(
+    test = map(data, ~ t.test(value~DSM.IV.OUD, data = .x)), # S3 list-col
+    tidied = map(test, tidy)
+  ) %>% 
+  unnest(cols = tidied) %>% 
+  select(-data, -test) %>% as.data.frame() %>% 
+  writexl::write_xlsx(  
+    here(PLOTDIR, 'tables', 'fig1_violin_avgUMI_avgGene_per_sample.xlsx')
+  )
 
 fig1_violin_avgUMI_per_sample_fn = 
   here(PLOTDIR, 'plots', 'fig1_violin_avgUMI_avgGene_per_sample.pdf')

@@ -49,15 +49,17 @@ table(obj_merged$celltype3 )
 fig1_split_umap_allCells_fn = 
   here(PLOTDIR, 'plots', 'fig1_split_umap_allCells.pdf')
 
-pdf(fig1_split_umap_allCells_fn, width = 140/in2mm, height =  100/in2mm)
-DimPlot(object = obj_merged, reduction = "umap", split.by = 'DSM.IV.OUD', 
+pdf(fig1_split_umap_allCells_fn, width = 100/in2mm, height =  50/in2mm)
+DimPlot(object = obj_merged, reduction = "umap", #split.by = 'DSM.IV.OUD', 
         group.by = 'celltype3', label = T,
-        label.size = 1.8, pt.size = 2, ncol = 6, cols = typecolors, raster = T) +
+        label.size = 1.8, pt.size = 2, ncol = 1, cols = typecolors, raster = T) +
   my_theme +
   guides(color = guide_legend(override.aes = list(size = 2), byrow = F)) +
-  theme(legend.position = 'bottom', plot.title= element_blank(),
-        legend.spacing.x = unit(6, 'mm'),
-        legend.key.size = unit(3, "mm"))
+  theme(legend.position = 'right', plot.title= element_blank(),
+        legend.spacing.x = unit(2, 'mm'),
+        legend.spacing.y = unit(2, 'mm'),
+        legend.key.size = unit(3, "mm"), 
+        plot.margin = unit(rep(1,4), "mm"))
 dev.off()
 
 
