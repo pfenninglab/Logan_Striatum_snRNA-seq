@@ -56,24 +56,9 @@ df = res %>% lapply(function(x){
 ###########################
 # 2) make some upset plots
 
-plot_fn = here(PLOTDIR, 'plots','s3.1_numDEG_bycelltype.upsetPlot.pdf')
-pdf(plot_fn, height = 200/in2mm, width = 180/in2mm)
-
-## neurons
-ct1 = make.names(c('All', 'Neuron',subtypes,'Interneuron'))
-dat1 = df %>% filter(celltype %in% ct1) %>% 
-  dplyr::select(c('celltype', 'gene')) %>% mutate(val = 1) %>% 
-  pivot_wider(names_from = celltype, values_from = val)%>% 
-  mutate(across(-gene, ~replace_na(.x, 0))) %>%
-  mutate(across(-gene, ~ifelse(.x==1, TRUE,FALSE)))
-ct1 = ct1[ct1 %in% names(dat1)]
-
-p1 = upset(dat1, rev(ct1), width_ratio=0.1, min_size=3, 
-      wrap=TRUE, set_sizes=FALSE, sort_sets=FALSE) + 
-  my_theme
 
 ## glia
-ct2 = make.names(c('All', 'Glia', names(othertypes_col)[-c(1:3, 6, 10)]))
+ct2 = make.names(c(names(othertypes_col)[-c(1:3, 10)]))
 dat2 = df %>% filter(celltype %in% ct2) %>% 
   dplyr::select(c('celltype', 'gene')) %>% mutate(val = 1) %>% 
   pivot_wider(names_from = celltype, values_from = val)%>% 
@@ -81,11 +66,26 @@ dat2 = df %>% filter(celltype %in% ct2) %>%
   mutate(across(-gene, ~ifelse(.x==1, TRUE,FALSE)))
 ct2 = ct2[ct2 %in% names(dat2)]
 
-p2 = upset(dat2, rev(ct2), width_ratio=0.1, min_size=3, 
+p1 = upset(dat2, rev(ct2), width_ratio=0.1, min_size=5, 
            wrap=TRUE, set_sizes=FALSE, sort_sets=FALSE) + my_theme
 
+## neurons
+ct1 = make.names(c(subtypes,'Interneuron'))
+dat1 = df %>% filter(celltype %in% ct1) %>% 
+  dplyr::select(c('celltype', 'gene')) %>% mutate(val = 1) %>% 
+  pivot_wider(names_from = celltype, values_from = val)%>% 
+  mutate(across(-gene, ~replace_na(.x, 0))) %>%
+  mutate(across(-gene, ~ifelse(.x==1, TRUE,FALSE)))
+ct1 = ct1[ct1 %in% names(dat1)]
+
+p2 = upset(dat1, rev(ct1), width_ratio=0.1, min_size=3, 
+      wrap=TRUE, set_sizes=FALSE, sort_sets=FALSE) + 
+  my_theme
+
 ## put it together
-p1 /   p2
+plot_fn = here(PLOTDIR, 'plots','s2.1_numDEG_bycelltype.upsetPlot.pdf')
+pdf(plot_fn, height = 200/in2mm, width = 180/in2mm)
+p1 / p2
 dev.off()
 
 

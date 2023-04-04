@@ -10,7 +10,7 @@ ss <- function(x, pattern, slot = 1, ...) {
 options(stringsAsFactors = F)
 options(repr.plot.width=11, repr.plot.height=8.5)
 
-FIGDIR='figures/explanatory/figure2_the_glia_degs_and_cell_states'
+FIGDIR='figures/explanatory/figure3_the_neuron_degs_and_cell_states'
 dir.create(here(FIGDIR, 'plots', 'gsea'), recursive = T, showWarnings = F)
 dir.create(here(FIGDIR, 'tables'), recursive = T, showWarnings = F)
 
@@ -34,44 +34,36 @@ alpha = 0.05
 save_res_fn = here('data/tidy_data/differential_expression_analysis', 'rdas', 'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.rds')
 res = readRDS(save_res_fn) %>% 
   lapply(function(x) x %>% filter(adj.P.Val.Between < alpha)) %>% 
-  rbindlist() %>% filter(celltype %in% glia_types) %>% 
+  rbindlist() %>% filter(celltype %in% neuron_types) %>% 
   arrange(adj.P.Val.Between)
+
+res %>% filter(gene == 'OGA')
 
 # 2) read in the clustered pathway enrichment tables
 curenrich_clustered = 
-  here(FIGDIR, 'tables','figure2_clustered_glia_gsea_pathway_network.xlsx') %>% 
+  here(FIGDIR, 'tables','figure3_clustered_gsea_pathway_network.xlsx') %>% 
   readxl::read_xlsx() %>% mutate(
     leadingEdge = str_split(leadingEdge, ',')
   ) %>% unnest(leadingEdge) %>% dplyr::rename('gene'= 'leadingEdge') 
 
-## interferon cluster
-curenrich_clustered %>% filter(cluster_number == 3)  %>% 
+## DNA replication & Cell Cycle checkpoint cluster
+curenrich_clustered %>% filter(cluster_number %in% c( 2))  %>% 
   distinct(celltype, gene) %>% 
   inner_join(res) %>% arrange(gene)
 
 
-## microglia cluster
-curenrich_clustered %>% filter(celltype == 'Microglia')  %>% 
+## mitochondrial pathways
+curenrich_clustered %>% filter(cluster_number %in% c(3, 4))  %>% 
   distinct(celltype, gene) %>% 
-  inner_join(res) %>% arrange(adj.P.Val.Between)
-
-res %>% filter(celltype == 'Microglia') %>% filter(gene %in% c('ADGRB3'))
-
-## endothelial cluster
-curenrich_clustered %>% filter(cluster_number %in% c(1, 2, 4, 5, 6)) %>%
-  count(gene) %>% arrange(desc(n)) %>% filter(n>5) %>% 
-  mutate(celltype = 'Endothelial') %>% inner_join(res)
+  inner_join(res) %>% arrange(gene)
 
 
-## the down-regulated cluster
-curenrich_clustered %>% 
-  count(gene) %>% arrange(desc(n)) %>% filter(n>4) %>% inner_join(res) %>% 
-  filter(!celltype %in% c('All', 'Glia')) %>% filter(grepl('GAB|GRM|GRIA|GRIN', gene))
+## hypoxia pathways
+curenrich_clustered %>% filter(cluster_number %in% c(11))  %>% 
+  distinct(celltype, gene) %>% 
+  inner_join(res) %>% arrange(gene)
 
-curenrich_clustered %>% filter(cluster_number == 9)  %>% 
-  count(gene) %>% arrange(desc(n)) %>% filter(n>=3) %>% pull(gene)
-
-curenrich_clustered %>% filter(cluster_number == 9)  %>% 
-  count(gene) %>% arrange(desc(n)) %>% filter(n>=3) %>% inner_join(res) %>% 
-  filter(!celltype %in% c('All', 'Glia'))
-
+## UV radiation pathways
+curenrich_clustered %>% filter(cluster_number %in% c(10))  %>% 
+  distinct(celltype, gene) %>% 
+  inner_join(res) %>% arrange(gene)
