@@ -75,7 +75,8 @@ regulon_df = here(DATADIR, 'regulon/OUD_Striatum_refined_N22.regulons.tsv') %>%
 regulon_df = regulon_df %>% dplyr::select(-c(V2:Context, RankAtMax)) %>% 
   distinct()
 
-regulon_df %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_pyscenic_deteced_TF_modules.xlsx'))
+regulon_df %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_pyscenic_detected_TF_modules.xlsx'))
+regulon_df %>% filter(V1 =='NFKB1')
 
 pathways = split(regulon_df$TargetGenes, regulon_df$V1)
 summary(lengths(pathways)) # regulons have 3 to 2500 genes

@@ -45,29 +45,13 @@ alpha = 0.05
 
 #####################################################################
 # 1)  load in the filtered Seurat object and grab the cell metadata 
-obj_merged = here('data/tidy_data/Seurat_projects', 
-                  "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
-  LoadH5Seurat(assay = 'integrated')
-
-meta_df = obj_merged[[]] %>% 
-  dplyr::select(-c(X, contains(c('integrated', 'index', 'Index')))) %>% 
-  mutate(celltype3 = ifelse(grepl('Int', celltype3), 'Interneuron', celltype3), 
-         celltype3 = factor(celltype3, names(typecolors)) %>% droplevels(), 
-         celltype3 = make.names(celltype3)) %>% 
+meta_df = readRDS(here('data/tidy_data/AUCell_gene_set_activities', 
+                       'rdas/BU_OUD_Striatum_refined_all_SeuratObj_N22.metadata.rds')) %>% 
+  dplyr::select(-contains(c('integrated', 'index', 'Index'))) %>% 
   rownames_to_column('Cell')
 
 pd = readRDS('data/tidy_data/tables/LR_RM_OUD_snRNAseq_SampleInfo.rds')
 pd2 = pd %>% dplyr::select(Case, ID, Region, Sex, DSM.IV.OUD, PMI, Age) %>% distinct()
-
-
-############################################################
-# 1) read in the DEG lists per comparison of OUD vs. Control
-AveCelltypeExpr = here('data/tidy_data/differential_expression_analysis/rdas', 
-                    'OUD_Striatum_voom_limma_bigModelSVA_N22.celltype.rds') %>% 
-  readRDS() %>% rbindlist() %>% dplyr::select(c(celltype, gene, AveExpr)) %>% distinct() %>% 
-  dplyr::rename('TF' = 'gene', 'celltype3' = 'celltype') %>% 
-  filter(AveExpr>1)
-  
 
 ############################################################
 # 2) read in the import list of inferred regulon target genes
@@ -97,6 +81,10 @@ aucell_pb = aucell_df %>% group_by(ID, Case, Region, TF, celltype3) %>%
 table(aucell_pb$TF)
 table(aucell_pb$celltype3)
 
+## save the pseudo bulk TF regulon output 
+save_pb_fn = here(PLOTDIR, 'rdas', 'OUD_Striatum_pyscenicl_TF_modules.pseudoBulkByCelltype.rds')
+saveRDS(aucell_pb, save_pb_fn)
+
 ##########################################
 ## 3) mixed effect statistics by cell type
 stats_group = aucell_pb %>% 
@@ -115,6 +103,9 @@ stats_group = aucell_pb %>%
   as.data.frame()
 
 head(stats_group)
+stats_group %>% filter(p.adj< alpha)
+stats_group %>% filter(p.adj< alpha) %>% count(celltype3)
+stats_group %>% filter(p.adj< alpha) %>% count(TF)
 
 stats_group %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_pyscenic_differential_TF_modules.byCelltype.xlsx'))
 
