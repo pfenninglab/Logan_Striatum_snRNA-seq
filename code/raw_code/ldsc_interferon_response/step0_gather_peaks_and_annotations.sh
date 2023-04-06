@@ -1,0 +1,1 @@
+rsync -Pav /projects/pfenninggroup/bloodAD/ldsc/IDR_optimal_peaks_hg38/All /projects/pfenninggroup/singleCell/Logan_BU_Striatum_snRNA-seq/data/tidy_data/ldsc_interferon_response
