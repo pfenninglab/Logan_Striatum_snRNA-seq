@@ -123,10 +123,16 @@ gsea_df = gsea_list %>% rbindlist(idcol = 'group') %>%
     padj = lm_qvalue(pval, X=size)$q, 
     celltype = group %>% ss('#', 1), 
     leadingEdge = map_chr(leadingEdge, paste, collapse = ',')) %>% 
-  inner_join(pathways_df2) %>% filter(padj < alpha) %>% dplyr::select(-group) %>% 
+  inner_join(pathways_df2) %>% dplyr::select(-group) %>% 
   relocate(OUD.v.CTL.in, celltype, MSigDb_Group, description, .before= everything()) %>% 
   split(f = .$OUD.v.CTL.in)
 
+## save the enrichment w/ all the pathways, significant and otherwise
+gsea_df %>%saveRDS(here('data/tidy_data/differential_expression_analysis', 
+                        'rdas/OUD_Striatum_GSEA_enrichment_msigdb_H_C2_C5_SynGO.unfiltered.rds'))
+
+## filter out just the significant pathways
+gsea_df = gsea_df %>% filter(padj < alpha)
 sapply(gsea_df, nrow)
 
 out_fn = here('data/tidy_data/differential_expression_analysis', 

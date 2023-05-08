@@ -64,5 +64,10 @@ z_clean = z_clean[,rownames(df)]
 saveRDS(z_clean, here(DATADIR, 'rdas', 'voomLimma_zscore_object_N222pb_regressedCovariate.rds'))
 
 
+## calculate gene-wise z-scores of samples
+z_clean2 = apply(2^v$E, 1, scale, center = TRUE, scale = TRUE) %>% t()
+colnames(z_clean2) = rownames(df)
+saveRDS(z_clean2, here(DATADIR, 'rdas', 'voomLimma_zscoreAllCelltypes_object_N222pb_regressedCovariate.rds'))
+
 
 
