@@ -7,22 +7,14 @@ BaDoi N. Phan1,2,3\*, Madelyn H. Ray4,5\*, Xiangning Xue6, Robert J.Fenster7, Ma
 
 Co-corresponding Authors:
 
-Ryan W. Logan, PhD
+Ryan W. Logan, PhD\
+364 Plantation Street, LRB 611\
+University of Massachusetts Chan Medical School\
+Worcester, MA 01605\
+ryan.logan@umassmed.edu
 
-364 Plantation Street, LRB 611
-
-University of Massachusetts Chan Medical School
-
-Worcester, MA 01605
-
-ryan.logan@umassmed.edu 
-
-Andreas R. Pfenning, PhD
-
-Gates Hillman Center Room 7711
-
-Carnegie Mellon University
-
-Pittsburgh, PA 15213
-
+Andreas R. Pfenning, PhD\
+Gates Hillman Center Room 7711\
+Carnegie Mellon University\
+Pittsburgh, PA 15213\
 apfenning@cmu.edu
