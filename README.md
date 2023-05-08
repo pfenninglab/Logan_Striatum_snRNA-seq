@@ -3,7 +3,7 @@
 ## Reference & Contact
 **Single nucleus transcriptomics of human striatum implicates DNA damage, neuroinflammation, and neurodegeneration signaling in opioid use disorder**
 
-BaDoi N. Phan1,2,3\*, Madelyn H. Ray4,5\*, Xiangning Xue6, Robert J.Fenster7, Madeline K. Kuppe-Fish8, Jill R. Glausier10, Qiao Su1, Allison E. Tipton4, David A. Lewis10, Zachary Freyberg10,11, Jack Bergman7, Kerry J. Ressler7, George C. Tseng6, Shelley J. Russek4,8, Yuriy Alekseyev9, Marianne L. Seney10, Andreas R. Pfenning1,2†, Ryan W. Logan4,8,12,13†
+BaDoi N. Phan1,2,3, Madelyn H. Ray4,5, Xiangning Xue6, Madeline K. Kuppe-Fish7, Jill R. Glausier9, Qiao Su1, Allison E. Tipton4, David A. Lewis9, Zachary Freyberg9,10, George C. Tseng6, Shelley J. Russek4,7, Yuriy Alekseyev8, Marianne L. Seney9, Andreas R. Pfenning1,2†, Ryan W. Logan4,7,11,12†
 
 Co-corresponding Authors:
 
