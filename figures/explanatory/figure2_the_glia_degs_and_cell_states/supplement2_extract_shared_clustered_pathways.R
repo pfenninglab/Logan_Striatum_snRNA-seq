@@ -56,6 +56,8 @@ curenrich_clustered %>% filter(celltype == 'Microglia')  %>%
   inner_join(res) %>% arrange(adj.P.Val.Between)
 
 res %>% filter(celltype == 'Microglia') %>% filter(gene %in% c('ADGRB3'))
+res %>% filter(gene %in% c('NFKBIA'))
+res %>% filter(gene %in% c('APOE'))
 
 ## endothelial cluster
 curenrich_clustered %>% filter(cluster_number %in% c(1, 2, 4, 5, 6)) %>%

@@ -38,6 +38,7 @@ res = readRDS(save_res_fn) %>%
   arrange(adj.P.Val.Between)
 
 res %>% filter(gene == 'OGA')
+res %>% filter(gene == 'MTRNR2L8')
 
 # 2) read in the clustered pathway enrichment tables
 curenrich_clustered = 
@@ -66,4 +67,5 @@ curenrich_clustered %>% filter(cluster_number %in% c(11))  %>%
 ## UV radiation pathways
 curenrich_clustered %>% filter(cluster_number %in% c(10))  %>% 
   distinct(celltype, gene) %>% 
-  inner_join(res) %>% arrange(gene)
+  inner_join(res) %>% arrange(celltype)
+
