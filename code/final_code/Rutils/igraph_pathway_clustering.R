@@ -81,8 +81,13 @@ make_igraph_from_pathways=function(curenrich,size_function = sqrt,
   
   # create the edgelist by the maximum ratio of overlapping genes
   edges = expand.grid(nodes$group,nodes$group) %>%
-    rename_with(~gsub('Var', 'Pathway', .)) %>% 
+    ## drop duplicate parallel and self pointing edges
     filter(Pathway1 != Pathway2) %>% 
+    mutate(tmp = map2_chr(Pathway1, Pathway2, function(x, y) 
+      c(x, y) %>% sort() %>% paste(collapse = ', '))) %>% 
+    filter(!duplicated(tmp)) %>% dplyr::select(-tmp) %>%
+    ## add the edge weights
+    rename_with(~gsub('Var', 'Pathway', .)) %>% 
     mutate(simscore = map2_dbl(genes[Pathway1], genes[Pathway2], numberMatchingGenes), 
            denom = pmin(lengths(genes[Pathway1]), lengths(genes[Pathway2])), 
            overlap_ratio = simscore/denom, 
