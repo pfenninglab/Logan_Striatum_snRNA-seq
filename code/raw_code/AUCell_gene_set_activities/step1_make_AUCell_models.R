@@ -15,7 +15,6 @@ ss <- function(x, pattern, slot = 1, ...) {
 options(stringsAsFactors = F)
 options(repr.plot.width=11, repr.plot.height=8.5)
 
-
 DATADIR='data/tidy_data/AUCell_gene_set_activities'
 dir.create(DATADIR, showWarnings = F)
 
