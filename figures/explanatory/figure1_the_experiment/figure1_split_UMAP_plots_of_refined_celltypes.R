@@ -64,6 +64,26 @@ dev.off()
 
 
 
+
+fig1_split_umap_allCells_fn2 = 
+  here(PLOTDIR, 'plots', 'fig1_split_umap_perSubject.pdf')
+
+pdf(fig1_split_umap_allCells_fn2, width = 8.5, height =  11)
+DimPlot(object = obj_merged, reduction = "umap", split.by = 'ID', 
+        group.by = 'celltype3', label = T,
+        label.size = 1.8, pt.size = 3, ncol = 4, cols = typecolors, raster = T) +
+  my_theme +
+  guides(color = guide_legend(override.aes = list(size = 2, nrow = 2), byrow = F)) +
+  theme(legend.position = 'bottom', plot.title= element_blank(),
+        legend.spacing.x = unit(2, 'mm'),
+        legend.spacing.y = unit(2, 'mm'),
+        legend.key.size = unit(3, "mm"), 
+        plot.margin = unit(rep(1,4), "mm"))
+dev.off()
+
+
+
+
 ###################################
 # 2) plot the avg. cell-wise QC metrics
 obj_msn = here('data/tidy_data/Seurat_projects', 
