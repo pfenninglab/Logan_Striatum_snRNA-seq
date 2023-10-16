@@ -28,13 +28,12 @@ oud_deg_list = res %>%
 
 ###################################################################
 # 2) load in the DEGs from monkey snRNA-seq NAc exposed to opioids
-all_degs_fn = list.files(DATADIR, pattern = 'celltype.rds', full.names = T, recursive = T) 
+all_degs_fn = list.files(here(DATADIR, 'rdas'), pattern = 'celltype.rds', full.names = T, recursive = F) 
 
 monkey_deg_versions = data.frame(path = all_degs_fn) %>% 
   mutate(deg_version = dirname(path) %>% dirname() %>% basename(), 
-         countsFilter = ss(deg_version, '_', 2), 
-         covariate = ss(deg_version, '_', 3), 
-         sva = basename(path) %>% str_detect('sva') %>% ifelse('SVA', 'noSVA'), 
+         countsFilter = ss(deg_version, '_', 2), covariate = 'Pair', 
+         sva = basename(path) %>% ss('_', 3), 
          theCall = paste(countsFilter, covariate, sva, sep = '_')) %>% 
   filter(deg_version != 'Result_batch0_with_mistakes')
 
@@ -89,8 +88,7 @@ for(deg_name in monkey_deg_name){
                       labels = c("OUD DEG", ind), boundary = 0.05, log10.ind=TRUE)
   }, mc.cores = 12)
   
-  RRHO_list %>% saveRDS(here(PLOTDIR,'rdas', paste0('compare_McLean_monkey_snRNA-seq_rrho.',
-                                                    deg_name, '.rds')))
+  RRHO_list %>% saveRDS(here(PLOTDIR,'rdas', paste0('compare_McLean_monkey_snRNA-seq_rrho.', deg_name, '.rds')))
   
   ############################################################
   # 4) plot the RRHO2 grouped all together with one scale
