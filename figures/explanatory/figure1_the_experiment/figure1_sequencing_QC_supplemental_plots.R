@@ -27,7 +27,6 @@ pheno =readRDS(here('data/tidy_data/tables/LR_RM_OUD_snRNAseq_SampleInfo.rds')) 
   filter(!ID %in% c('C-13291', 'C-612'))
 
 
-
 ###################################
 # 2) load the mapping to genome QC table
 df1 = here('figures/exploratory/explore_qc_data/tables',
@@ -45,8 +44,6 @@ p1 = ggplot(df1, aes(x = Region, y = value, fill = DSM.IV.OUD)) +
   scale_y_continuous(limits =c(0, NA), labels = scales::comma) + 
   ylab('per-sample mapping QC metric') +
   theme(legend.position = 'bottom', axis.title.x = element_blank())
-
-
 
 
 ###################################
@@ -78,7 +75,3 @@ plot_grid( p1, p2 + theme(legend.position="none"),
   align = 'vh', labels = c("A", "B"), hjust = -1, ncol = 1, 
   rel_heights = c(2, 1.35))
 dev.off()
-
-
-
-
