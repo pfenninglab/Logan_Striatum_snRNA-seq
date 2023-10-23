@@ -69,6 +69,7 @@ df_wide = df_wide %>%
 
 
 df_wide %>% filter(celltype %in% c('Microglia', 'Oligo')) %>% as.data.frame() %>% head()
+
 ##########################################
 ## 2) make the scatter plot of the log2FC's
 plot_fn = here(PLOTDIR,'plots', 'sX.2_mumDEG_sexInteraction_scatterplot.logFC.pdf')

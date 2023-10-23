@@ -10,7 +10,6 @@ library(ggsci)
 library(here)
 
 library(ggvenn) # devtools::install_github("yanlinlin82/ggvenn")
-library(VennDiagram)
 
 DATADIR='data/tidy_data'
 
@@ -61,13 +60,12 @@ res_SexWinOUD = here(rdasDir, 'OUD_Striatum_voom_limma_bigModelSVA_N22.SexWinOUD
   pivot_longer(cols = -c(celltype, gene, group), names_sep = '_', names_to = c('metric', 'base_group'))
 
 ## relabel the DEG comparisons to be meaningful
-remap_groupings = c( OUD = 'M v F\nin OUD', CTL = 'M v F\nin CTL',
-  SexF = 'OUD v CTL\nin F', SexM = 'OUD v CTL\nin M')
+remap_groupings = c( OUD = 'MvF in OUD', CTL = 'MvF in UC',
+  SexF = 'OUD in F', SexM = 'OUD in M')
 res = bind_rows(res_OUDwinSex, res_SexWinOUD) %>% 
   pivot_wider(names_from = 'metric', values_from = 'value') %>% 
-  mutate(base_group = remap_groupings[base_group])
-
-
+  mutate(base_group = remap_groupings[base_group]) %>% 
+  filter(!celltype %in% c('All', 'Neuron', 'Glia'))
 
 ###############################################################
 # 2) construct DEG list across 4 comparisons for venn diagram
@@ -79,21 +77,25 @@ venn_list = split(res, f = res$celltype) %>%
     x = x %>% filter(adj.P.Val.Between < alpha)
     split(x$gene, x$base_group)
   })
-
-
+venn_list = venn_list[names(typecolors)[names(typecolors) %in% names(venn_list)]]
 set_cols =  c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
+
+gg_list = lapply(set_names(names(venn_list)), function(x){
+  x2 = venn_list[[x]]
+  ggVennDiagram(x2, label = 'count', label_alpha = 0, 
+                label_size = 5, cat.cex = 1) + 
+    ggtitle(x) +
+    scale_color_manual(values = set_cols) +
+    scale_fill_gradient(low="white",high = "white", guide = 'none') + 
+    theme(legend.position = 'bottom', 
+          plot.title = element_text(hjust = 0.5), 
+          plot.margin = unit(rep(.7,4),"cm"))
+  })
+
 file_name = here(PLOTDIR, 'plots', paste0('figure5_sexInteraction_DEG_4-way_vennDiagram.pdf'))
-pdf(file_name, height = 20/in2mm, width = 20/in2mm)
-for (cell in names(venn_list)){
-  file_name = here(PLOTDIR, 'plots', paste0('figure5_sexInteraction_DEG_4-way_vennDiagram.', cell, '.pdf'))
-  pdf(file_name, height = 20/in2mm, width = 20/in2mm)
-  display_venn( venn_list[[cell]],  fill = set_cols, main = cell, lty = 'blank',
-                height = 20/in2mm, width = 20/in2mm, cex = .3, cat.cex = .25,  
-                cat.fontface = "bold", resolution = 200, main.cex =.3)
-  dev.off()
-  display_venn( venn_list[[cell]],  fill = set_cols, main = cell, lty = 'blank',
-                height = 20/in2mm, width = 20/in2mm, cex = .3, cat.cex = .25,  
-                cat.fontface = "bold", resolution = 200, main.cex =.3)
-}
+
+pdf(file_name, height = 11, width = 8)
+cowplot::plot_grid(plotlist = gg_list, labels = "AUTO", ncol = 3)
 dev.off()
+
 
