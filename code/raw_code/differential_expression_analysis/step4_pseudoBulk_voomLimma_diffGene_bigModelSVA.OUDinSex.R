@@ -20,7 +20,7 @@ DATADIR='data/tidy_data/differential_expression_analysis'
 
 ###################################################
 ## 1) read in the fitted big model w/ SVA features 
-save_pseudobulk =here(DATADIR, 'rdas', 'BU_SexF_Striatum_refined_all_PseudoBulk_N22.sce2.rds')
+save_pseudobulk =here(DATADIR, 'rdas', 'BU_OUD_Striatum_refined_all_PseudoBulk_N22.sce2.rds')
 pb = readRDS(save_pseudobulk)
 pb = pb[, pb$numCells > 15]
 pb = pb[, pb$celltype3 != 'Mural'] # drop mural cells b/c too few

@@ -23,7 +23,7 @@ print(paste('The random seed is:', opt$iter_num))
 set.seed(opt$iter_num)
 
 ## check if this iter needs to be run, quit if already run
-rdasDir =file.path(DATADIR, 'rdas', 'permutations'); dir.create(rdasDir, showWarnings = F)
+rdasDir =file.path(DATADIR, 'rdas', 'permutations2'); dir.create(rdasDir, showWarnings = F)
 save_res_fn = here(rdasDir, paste0('OUD_Striatum_voom_limma_bigModelSVA_N22.OUDwinSex.',opt$iter_num,'.rds'))
 if(file.exists(save_res_fn)){
   print(paste('file exists, skipping:', save_res_fn))
@@ -51,11 +51,15 @@ pb$Region = as.factor(pb$Region)
 pb$Sex = as.factor(pb$Sex)
 pb$numCells = as.numeric(pb$numCells)
 
-#################################################################
-## 3) permute the sex of the subjects and propagate across all cells
+###############################################################################
+## 3) permute the sex and OUD dx of the subjects and propagate across all cells
 sex_mapping = colData(pb) %>% as.data.frame() %>% distinct(Case, Sex) %>% deframe()
 sex_mapping = setNames(sample(unname(sex_mapping)), names(sex_mapping))
 pb$Sex = sex_mapping[as.character(pb$Case)]
+
+oud_mapping = colData(pb) %>% as.data.frame() %>% distinct(Case, DSM.IV.OUD) %>% deframe()
+oud_mapping = setNames(sample(unname(oud_mapping)), names(oud_mapping))
+pb$DSM.IV.OUD = oud_mapping[as.character(pb$Case)]
 
 #################################################################
 ## 4) permute the sex of the subjects and propagate across all cells
