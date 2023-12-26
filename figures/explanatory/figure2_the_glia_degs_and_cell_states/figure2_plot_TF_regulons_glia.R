@@ -62,6 +62,9 @@ stats_group2 = stats_group %>% filter(TF %in% signif_TF, celltype3 %in% signif_c
   group_by(TF) %>% mutate(tmp = mean(statistic)) %>% ungroup() %>% 
   arrange(tmp) %>% mutate(TF = factor(TF, unique(TF)))
 
+stats_group2 %>% dplyr::select(-tmp) %>%
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_pyscenic_differential_TF_modules.byCelltype.sourceData.xlsx'))
+
 #############################################
 # 2) load in the pseudobulk of TF regulators
 plot_tf_enrichment_fn = here(PLOTDIR, 'plots', 'figure2_TF_regulon_glia.heatmap.pdf')

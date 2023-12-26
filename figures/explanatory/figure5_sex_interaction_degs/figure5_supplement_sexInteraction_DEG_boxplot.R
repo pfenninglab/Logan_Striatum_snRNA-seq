@@ -101,6 +101,11 @@ for(g in to_plot){
   plot_fn = here(PLOTDIR,'plots', paste0('figure5.sexInteraction_celltypes_DEG_boxPlot.',g,'.pdf'))
   pdf(plot_fn, height = 40/in2mm, width = 55/in2mm)
   df2 = cbind(df, Y = y_clean[g,rownames(df)])
+  
+  df2 %>% 
+    dplyr::select(c(Case, DSM.IV.OUD, Region, Sex, celltype3, celltype_class, Y)) %>% 
+    writexl::write_xlsx(here(PLOTDIR,'tables', paste0('s5.5_celltypes_DEG_boxPlot.sourceData.',g,'.xlsx')))
+  
   p = ggplot(df2, aes(x = celltype3, y = Y)) + 
     geom_boxplot(outlier.shape = NA, aes(fill = DSM.IV.OUD)) + 
     geom_point( alpha = .7, size = .5, position = position_jitterdodge(),
@@ -131,7 +136,7 @@ plot_fn = here(PLOTDIR,'plots', 's5.4_celltypes_DEG_boxPlot.All.pdf')
 pdf(plot_fn, height = 250/in2mm, width = 180/in2mm, onefile = T)
 for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/8))){
   df2 = df %>% cbind( t(y_clean[g,rownames(df)]) ) %>% 
-    pivot_longer(cols = all_of(g), names_to = 'gene', values_to = 'Y')
+    pivot_longer(cols = all_of(g), names_to = 'gene', values_to = 'Y') 
   p = ggplot(df2, aes(x = celltype3, y = Y)) + 
     geom_boxplot(outlier.shape = NA, aes(fill = DSM.IV.OUD)) + 
     geom_point( alpha = .7, size = 1, position = position_jitterdodge(),
@@ -145,7 +150,7 @@ for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/8))){
     theme(legend.position = 'bottom', 
           legend.spacing.y = unit(2, 'cm'), 
           legend.key.size = unit(.5, "cm")) 
-  print(p)
+  # print(p)
 }
 dev.off()
 
@@ -173,7 +178,7 @@ for(g in split(sort(to_plot), ceiling(seq_along(to_plot)/12))){
     theme(legend.position = 'bottom', 
           legend.spacing.y = unit(2, 'cm'), 
           legend.key.size = unit(.5, "cm")) 
-  print(p)
+  # print(p)
 }
 dev.off()
 

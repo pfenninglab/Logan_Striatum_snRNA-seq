@@ -59,11 +59,12 @@ df_overlap = res %>%
     adj.P.Val.Between_SexF < alpha ~ 'in Females only', 
     adj.P.Val.Between_SexM < alpha ~ 'in Males only'
   )) %>% filter(!is.na(signif_group)) %>% 
-  group_by(cell_class, celltype) %>% count(signif_group) %>% 
+  group_by(cell_class, celltype) %>% dplyr::count(signif_group) %>% 
   mutate(
     cell_class = factor(cell_class, levels = c('Neuron', 'Glia')),
     celltype = factor(celltype, levels = make.names(c(subtypes, othertypes))),
   )
+df_overlap %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'sX.2_mumDEG_sexInteraction_venn.sourceData.xlsx'))
 
 df_overlap %>% group_by(cell_class, signif_group) %>% 
   summarise(mean = mean(n), sem = sd(n)/sqrt(n()))

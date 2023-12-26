@@ -99,7 +99,8 @@ lgd_oud = Legend(labels = names(dx_col), title = "OUD Dx", legend_height = unit(
 
 ########################################################
 ## 4) plot all the glial DEGs w/ cell type overlaps
-df2 = df %>% arrange(celltype3, DSM.IV.OUD, Sex) %>% filter(celltype_class == 'Glia')
+df2 = df %>% arrange(celltype3, DSM.IV.OUD, Sex) %>% filter(celltype_class == 'Glia')%>% 
+  dplyr::select(celltype3, DSM.IV.OUD, Sex)
 
 ## cell type legend
 lgd_cell = Legend(labels = names(typecolors)[c(10:12,14:15)], title = "Cell type", 
@@ -120,6 +121,8 @@ column_ha = HeatmapAnnotation(
 to_plot3= res$Glia %>% filter(adj.P.Val.Between < alpha) %>% 
   filter(abs(logFC) > 1) %>% pull(gene) %>% unique()
 mat3 = z_clean[to_plot3,rownames(df2)]
+
+bind_cols(df2, t(mat3)) %>% writexl::write_xlsx(here(PLOTDIR,'tables', 'figure2_celltypes_DEG_heatmap.glia.sourceData.xlsx'))
 
 ## grab the genes enriched in the pathways
 pathways_genes = here(PLOTDIR,'tables', 'figure2_clustered_glia_gsea_pathway_network.xlsx') %>% 

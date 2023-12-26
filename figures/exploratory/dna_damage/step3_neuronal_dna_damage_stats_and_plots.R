@@ -28,11 +28,11 @@ dir.create(here(PLOTDIR, 'rdas'), showWarnings = F)
 # 1) load in the DNA damage estimates for glia from the general 
 # DNA dam vs. undamaged
 
-save_file = here(PLOTDIR, 'rdas', 'OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam2.rds')
+save_file = here(PLOTDIR, 'rdas', 'BU_OUD_Striatum_refined_all_SeuratObj_N22.meta.DNAdam2.rds')
 celltype_df = readRDS(save_file) %>% filter(!is.na(DNA_dam_val_neu)) %>% 
   filter(grepl('^D[1-2]|Int', celltype3))
 
-celltype_df%>% count(celltype3)
+celltype_df %>% dplyr::count(celltype3)
 
 ########################
 # 2) average per sample
@@ -41,6 +41,10 @@ dam_per_sample = celltype_df %>%
   mutate(numCell = n(), DNA_dam_prop = sum(DNA_dam_class_neu =='damaged') / numCell) %>% 
   mutate_if(is.numeric, mean) %>% 
   ungroup() %>% distinct(Case, .keep_all = T) 
+
+dam_per_sample %>% dplyr::select(Case, DNA_dam_val_neu, DSM.IV.OUD, 
+                                 Age, Sex, PMI, RIN, numCell) %>% 
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamNeuVal.perSample.soureData.xlsx'))
 
 ## stats no difference in cortical neuronal DNA damage signature in MSNs
 modBySample = lm(DNA_dam_val_neu ~ DSM.IV.OUD+ Age + Sex + PMI + RIN + numCell,
@@ -88,6 +92,11 @@ dam_per_cellxSample = celltype_df %>%
   group_by(celltype4) %>% mutate(DNA_dam_val_neu_avg = mean(DNA_dam_val_neu)) %>% 
   ungroup() %>% arrange(desc(DNA_dam_val_neu_avg)) %>%   
   mutate(celltype4 = factor(celltype4, unique(celltype4)))
+
+dam_per_cellxSample %>% dplyr::select(Case, celltype4, DNA_dam_val_neu, DSM.IV.OUD, 
+                                 Age, Sex, PMI, RIN, numCell) %>% 
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamNeuVal.perSampleByCell.soureData.xlsx'))
+
 
 ## take a look
 dam_per_cellxSample %>% count(Region, Case)

@@ -148,6 +148,10 @@ df = as.data.frame(pb) %>% rownames_to_column('groupings') %>%
   arrange(celltype) %>% 
   mutate(gene = factor(gene, markers_genes), groupings = factor(groupings, unique(groupings)))
 
+df %>% 
+  pivot_wider(names_from = gene, values_from = value) %>%
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'figure1_pseudobulk_celltype_markerGene_heatmap_source_data.xlsx'))
+
 ## make marker gene plot
 plot_fn = here(PLOTDIR, 'plots', 'figure1_pseudobulk_celltype_markerGene_heatmap.pdf')
 pdf(plot_fn, height = 60/in2mm, width = 90/in2mm, onefile = T)

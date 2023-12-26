@@ -100,7 +100,8 @@ lgd_oud = Legend(labels = names(dx_col), title = "OUD Dx", legend_height = unit(
 
 ####################################################################
 ## 4) plot the genes most coordinatedly DE across neuronal subtypes
-df2 = df %>% arrange(celltype3, DSM.IV.OUD, Sex) %>% filter(celltype_class == 'Neuron')
+df2 = df %>% arrange(celltype3, DSM.IV.OUD, Sex) %>% filter(celltype_class == 'Neuron') %>% 
+  dplyr::select(celltype3, DSM.IV.OUD, Sex)
 
 ## cell type legend
 lgd_cell = Legend(labels = names(typecolors[4:9]), title = "Cell type", 
@@ -121,6 +122,8 @@ column_ha1 = HeatmapAnnotation(
 to_plot= res$Neuron %>% filter(adj.P.Val.Between < alpha) %>% 
   filter(abs(logFC) > .5) %>% pull(gene) %>% unique()
 mat1 = z_clean[to_plot,rownames(df2)]
+
+bind_cols(df2, t(mat1)) %>% writexl::write_xlsx(here(PLOTDIR,'tables', 'figure3_celltypes_DEG_heatmap.neuron.sourceData.xlsx'))
 
 ## grab the genes enriched in the pathways
 pathways_genes = here(PLOTDIR,'tables', 'figure3_clustered_gsea_pathway_network.xlsx') %>% 

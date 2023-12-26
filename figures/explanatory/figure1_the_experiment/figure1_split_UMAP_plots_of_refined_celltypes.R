@@ -46,6 +46,9 @@ obj_merged = here('data/tidy_data/Seurat_projects',
 names(obj_merged[[]] )
 table(obj_merged$celltype3 )
 
+Embeddings(obj_merged, reduction = 'umap')
+
+
 fig1_split_umap_allCells_fn = 
   here(PLOTDIR, 'plots', 'fig1_split_umap_allCells.pdf')
 
@@ -63,8 +66,13 @@ DimPlot(object = obj_merged, reduction = "umap", #split.by = 'DSM.IV.OUD',
 dev.off()
 
 
+## export the UMAP coordinates source data
+cbind(obj_merged[[]], Embeddings(obj_merged, reduction = 'umap')) %>% 
+  rownames_to_column('cell') %>% 
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'fig1_metadata_allCells_umap.xlsx'))
 
 
+## plot the UMAP coordinates split by subjects
 fig1_split_umap_allCells_fn2 = 
   here(PLOTDIR, 'plots', 'fig1_split_umap_perSubject.pdf')
 
@@ -85,7 +93,7 @@ dev.off()
 
 
 ###################################
-# 2) plot the avg. cell-wise QC metrics
+# 2) plot the UMAP coordinates split by MSN cell types
 obj_msn = here('data/tidy_data/Seurat_projects', 
                   "BU_OUD_Striatum_refined_msn_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA') 

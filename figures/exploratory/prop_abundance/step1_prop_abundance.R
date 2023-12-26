@@ -64,6 +64,8 @@ prop_df = meta_df %>%
   distinct(.keep_all = TRUE) %>% 
   ungroup() %>% left_join(pd) 
 
+prop_df %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'cell_type_proportion_source_data.xlsx'))
+
 avg_df = prop_df %>% group_by(celltype3) %>% summarise(avg_prop = mean(propCelltype))
 
 ## test if there's a difference in cell type proportions w/ OUD

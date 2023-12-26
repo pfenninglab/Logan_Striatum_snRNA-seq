@@ -81,6 +81,10 @@ neuron_dam_per_sample = neuron_AUC_df %>% group_by(Case) %>%
          numCell = n()) %>% ungroup() %>% 
   distinct(DSM.IV.OUD, Age, Sex, PMI, RIN, Region, numCell, .keep_all = T)
 
+neuron_dam_per_sample %>% dplyr::select(Case, Stage1, DSM.IV.OUD, 
+                                 Age, Sex, PMI, RIN, numCell) %>% 
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamNeuVal.perSample.soureData.xlsx'))
+
 ## stats
 neuron_modBySample_s1 = lm(Stage1 ~ DSM.IV.OUD + Age + Sex + PMI + RIN + numCell,
                     data = neuron_dam_per_sample) 
@@ -196,6 +200,10 @@ dam_per_neuronxSample = neuron_AUC_df %>%
             ~ (. - mean(.))/sd(.)) %>% 
   group_by(celltype3) %>%   
   mutate(celltype3 = factor(celltype3, unique(celltype3)))
+
+dam_per_neuronxSample %>% dplyr::select(Case, celltype3, Stage1, DSM.IV.OUD, 
+                                      Age, Sex, PMI, RIN, numCell) %>% 
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamNeuVal.perSampleByCell.soureData.xlsx'))
 
 lm(Stage1 ~ celltype3 + celltype3:DSM.IV.OUD+ Age + Sex + 
        PMI + RIN + numCell + Region , 

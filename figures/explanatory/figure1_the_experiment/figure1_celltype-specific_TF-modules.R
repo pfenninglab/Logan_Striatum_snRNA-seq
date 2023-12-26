@@ -142,6 +142,11 @@ df = aucell_pb %>% filter(TF %in% markers_TF_modules) %>%
   mutate(TF_module = factor(TF, markers_TF_modules), 
          groupings = paste(celltype, ID))
 
+df %>% 
+  dplyr::select(c(groupings, TF, celltype, AUCellz)) %>%
+  pivot_wider(names_from = TF, values_from = AUCellz) %>%
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'figure1_pseudobulk_celltype_markerTF_heatmap_source_data.xlsx'))
+
 df2 = df %>% dplyr::select(c(groupings, TF_module, celltype, AUCellz)) %>% 
   pivot_wider(id_cols = c(groupings, celltype), names_from = TF_module, 
               values_from = AUCellz, values_fill = 0) %>% 

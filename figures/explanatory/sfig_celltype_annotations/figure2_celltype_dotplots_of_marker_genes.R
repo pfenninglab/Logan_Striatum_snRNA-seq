@@ -20,7 +20,7 @@ library(here)
 DATADIR='data/raw_data'
 
 ## make for this subdirs
-PLOTDIR='figures/explanatory/figure2_the_celltype_annotations'
+PLOTDIR='figures/explanatory/sfig_celltype_annotations'
 here(PLOTDIR, c('plots', 'tables', 'rdas')) %>% sapply(dir.create, showWarnings = F)
 
 
@@ -100,7 +100,7 @@ fig2_diagonal_matrix_dotplot_fn =
 
 # https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf
 pdf(fig2_diagonal_matrix_dotplot_fn, width = 110/in2mm, height =  70/in2mm)
-DotPlot( obj_merged, features = markerGenes, cols = c("lightgrey", 'deeppink2'),
+p1 = DotPlot( obj_merged, features = markerGenes, cols = c("lightgrey", 'deeppink2'),
   cluster.idents = F, scale = T, scale.by = "radius") +
   my_theme + scale_y_discrete(limits = rev) +
   scale_x_discrete(position = "top") +
@@ -109,6 +109,8 @@ DotPlot( obj_merged, features = markerGenes, cols = c("lightgrey", 'deeppink2'),
         axis.title = element_blank(), 
         legend.key.size = unit(2, "mm"),
         legend.spacing.x = unit(2, 'mm'))
+p1
 dev.off()
 
 
+p1$data %>% writexl::write_xlsx(here(PLOTDIR, 'tables', 'fig2_diagonal_matrix_dotplot.source.xlsx'))

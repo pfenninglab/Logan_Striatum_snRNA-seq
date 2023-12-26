@@ -60,6 +60,9 @@ df = res %>% lapply(function(x){
   return(out)
 }) %>% data.table::rbindlist(idcol = 'celltype')
 
+df %>% dplyr::filter(!celltype %in% c('All', 'Neuron', 'Glia')) %>%
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'figure2_mumDEG_celltypes.sourceData.xlsx'))
+
 ## mean and SE of DEGs per cell type
 df %>% pull(numDiff) %>% mean()
 df %>% pull(numDiff) %>% sd() /sqrt(length(res))
