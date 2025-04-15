@@ -18,3 +18,5 @@ Gates Hillman Center Room 7711\
 Carnegie Mellon University\
 Pittsburgh, PA 15213\
 apfenning@cmu.edu
+
+Citable DOI for this code repository [![DOI](https://zenodo.org/badge/606597033.svg)](https://zenodo.org/doi/10.5281/zenodo.10433683)
