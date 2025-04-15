@@ -7,6 +7,8 @@ library(rcartocolor)
 library(ggpubr)
 
 ## AUCell object for DNA damage estimates
+library(Seurat)
+library(SeuratDisk)
 library(AUCell)
 
 ## statistical analyses
@@ -31,7 +33,13 @@ dir.create(here(PLOTDIR, 'rdas'), showWarnings = F)
 obj_merged = here('data/tidy_data/Seurat_projects', 
                   "BU_OUD_Striatum_refined_all_SeuratObj_N22.h5Seurat") %>% 
   LoadH5Seurat(assay = 'RNA') 
+# set the groupings by the refined cell type column
+## merge interneurons again
+obj_merged$celltype4 = ifelse(grepl('Int', obj_merged$celltype3), 
+                              'Interneuron',obj_merged$celltype3)
+
 meta = obj_merged[[]] %>% rownames_to_column('cellBarcode') 
+
 
 table(meta$celltype3)
 table(meta$celltype4)
@@ -44,17 +52,20 @@ neuron_AUC = readRDS(save_fn)
 neuron_AUC_df =getAUC(neuron_AUC) %>% t() %>% as.data.frame() %>% 
   rownames_to_column('cellBarcode') %>% 
   inner_join(x = meta, y = .) %>% 
-  filter(celltype4 == 'Interneurons') %>% 
-  mutate(ID = factor(ID))
+  filter(celltype4 == 'Interneuron') %>% 
+  mutate(ID = factor(ID), Case = factor(Case))
 
 ## linear modeling 
 mod = lm(Stage1 ~ celltype3 + celltype3:DSM.IV.OUD+ Age + Sex + 
-     PMI + RIN  + Region + (1|Case) , 
+     PMI + RIN  + Region , 
    data = neuron_AUC_df) %>% summary() %>% tidy() %>% 
   filter(grepl('celltype3Int', term), 
          grepl(':', term)) %>% 
   mutate(celltype3 = ss(term, '3|:', 2), 
          label = paste('p =', signif(p.value, 2)))
+
+neuron_AUC_df %>% dplyr::select(Stage1, celltype3, DSM.IV.OUD, Age, Sex, PMI, RIN, Region, Case) %>% 
+  writexl::write_xlsx(here(PLOTDIR, 'tables', 'OUD_Striatum_dnaDamValStage1.byInterneurons.SourceData.xlsx'))
 
 ## plots
 pdf(here(PLOTDIR, 'plots', 'OUD_Striatum_dnaDamValStage1.byInterneurons.pdf'), width = 2.7, height = 1)
